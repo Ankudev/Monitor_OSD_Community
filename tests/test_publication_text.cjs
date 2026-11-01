@@ -18,6 +18,6 @@ for (const name of ['index', 'readme', 'examples/locations', 'examples/osd-displ
   const html = fs.readFileSync(`web/${name}.html`, 'utf8');
   const urls = [...html.matchAll(/\/static\/(event-view\.js|script\.js|match-explanation\.js|diagnostics\.js|style\.css)\?v=([^"\s]+)/g)];
   assert(urls.length > 0);
-  const versions = {'style.css':'20261026-katalog-1', 'script.js':'20261026-katalog-1', 'event-view.js':'20261023-zrodla-2', 'match-explanation.js':'20261020-polish-1', 'diagnostics.js':'20261023-zrodla-2'};
+  const versions = {'style.css':'community-0-1-alpha', 'script.js':'community-0-1-alpha', 'event-view.js':'community-0-1-alpha', 'match-explanation.js':'community-0-1-alpha', 'diagnostics.js':'community-0-1-alpha'};
   assert(urls.every(match => match[2] === versions[match[1]]), `Nieaktualny adres zasobu: ${name}`);
 }

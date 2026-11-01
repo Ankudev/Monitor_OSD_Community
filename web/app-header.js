@@ -38,6 +38,8 @@ async function showCommunityMode() {
       note.textContent = mode.notice + ' Przykładowe punkty miejscowości; przypisania operatorów są częścią scenariusza.';
       document.body.prepend(note);
       document.body.classList.add('community-demo');
+      const lastRead = document.getElementById('lastReadLabel');
+      if (lastRead) lastRead.textContent = 'Ostatnie odnowienie scenariusza';
     }
   } catch { /* Mapa i lista pozostają dostępne przy błędzie informacji o profilu. */ }
 }

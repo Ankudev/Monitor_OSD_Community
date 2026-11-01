@@ -6,16 +6,16 @@
   <meta name="description" content="Mapa komunikatów o awariach i planowanych wyłączeniach pięciu OSD.">
   <title>Monitor OSD. Mapa komunikatów</title>
   <link rel="icon" href="data:,">
-  <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css?v=1.9.4-20260915">
-  <link rel="stylesheet" href="/static/style.css?v=20261026-katalog-1">
-  <link rel="stylesheet" href="/static/app-header.css?v=20261026-katalog-1">
-  <script src="/static/app-header.js?v=20261025-uke-gps" defer></script>
-  <script src="/static/vendor/leaflet/leaflet.js?v=1.9.4-20260915" defer></script>
-  <script src="/static/event-view.js?v=20261023-zrodla-2" defer></script>
-  <script src="/static/match-explanation.js?v=20261020-polish-1" defer></script>
-  <script src="/static/script.js?v=20261026-katalog-1" defer></script>
-  <script src="/static/diagnostics.js?v=20261023-zrodla-2" defer></script>
-  <script src="/static/delivery-history.js?v=20261023-stabilizacja-2" defer></script>
+  <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css?v=community-0-1-alpha.9.4-20260915">
+  <link rel="stylesheet" href="/static/style.css?v=community-0-1-alpha">
+  <link rel="stylesheet" href="/static/app-header.css?v=community-0-1-alpha">
+  <script src="/static/app-header.js?v=community-0-1-alpha" defer></script>
+  <script src="/static/vendor/leaflet/leaflet.js?v=community-0-1-alpha.9.4-20260915" defer></script>
+  <script src="/static/event-view.js?v=community-0-1-alpha" defer></script>
+  <script src="/static/match-explanation.js?v=community-0-1-alpha" defer></script>
+  <script src="/static/script.js?v=community-0-1-alpha" defer></script>
+  <script src="/static/diagnostics.js?v=community-0-1-alpha" defer></script>
+  <script src="/static/delivery-history.js?v=community-0-1-alpha" defer></script>
 </head>
 <body>
   <header class="topbar osd-header">
@@ -71,7 +71,7 @@
         <p id="viewDescription">Mapa pokazuje zapisane obiekty i dopasowane do nich komunikaty. Dopasowanie nie zawsze potwierdza objęcie punktu wyłączeniem.</p>
       </div>
       <div class="refresh-box">
-        <span>Ostatni poprawny odczyt</span>
+        <span id="lastReadLabel">Ostatni poprawny odczyt</span>
         <strong id="lastUpdate">Jeszcze nie wykonano</strong>
         <div class="scan-clock">
           <span id="nextScanLabel">Następny pełny skan</span>

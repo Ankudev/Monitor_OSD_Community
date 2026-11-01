@@ -906,7 +906,7 @@ function setView(view) {
     attention: ["DO SPRAWDZENIA", "Zdarzenia wymagające uwagi", "Komunikaty trwające, niepewne, nadal publikowane po przewidywanym terminie lub z niejednoznacznym czasem. Nie potwierdzają stanu zasilania."],
     next48: ["NAJBLIŻSZE 48 GODZIN", "Nadchodzące terminy zdarzeń", "Każdy poprawny przyszły przedział czasu jest pokazany osobno, także wtedy, gdy inny termin tego samego komunikatu już trwa."],
     planned: ["NAJBLIŻSZE DNI", "Planowane wyłączenia", "Wybierz dzień i sprawdź komunikaty oznaczone przez operatora jako planowane wyłączenia."],
-    objects: ["KATALOG LOKALIZACJI", "Moje obiekty", "Przeglądaj obiekty, dodawaj je do ulubionych i sprawdzaj ich położenie na mapie. Edycja jest dostępna po zalogowaniu."],
+    objects: ["KATALOG LOKALIZACJI", "Moje obiekty", "Przeglądaj lokalizacje, dodawaj je do ulubionych i sprawdzaj ich położenie na mapie."],
   };
   document.getElementById("viewEyebrow").textContent = titles[view][0];
   document.getElementById("viewTitle").textContent = titles[view][1];
@@ -950,6 +950,12 @@ function renderSourceHealth(status) {
     const health = status.sources?.[source] || {};
     const chip = createElement("article", `source-chip ${health.stale ? "error" : "ok"}`);
     chip.append(createElement("strong", "", health.label || source.toUpperCase()));
+    if (status.demo) {
+      chip.title = "Przykład formatu operatora w scenariuszu demonstracyjnym.";
+      chip.append(createElement("span", "", "Dane scenariusza — bez odczytu operatora"));
+      container.append(chip);
+      continue;
+    }
     chip.title = `${health.error ? `${health.error}\n` : ""}Ostatni poprawny odczyt: ${formatDate(health.last_success_at)}`;
     const state = health.error
       ? (health.error_category === "maintenance" ? OsdEventView.sourceErrorText(health) : `Błąd odczytu: ${OsdEventView.sourceErrorText(health)}`)
@@ -991,6 +997,12 @@ function sourceClockState(health, now, available) {
 }
 
 function updateSourceClocks() {
+  if (statusPayload?.demo) {
+    document.getElementById("nextScanLabel").textContent = "Odnowienie scenariusza";
+    document.getElementById("nextScanTime").textContent = "Co godzinę";
+    document.getElementById("nextScanCountdown").textContent = "Rzeczywiste źródła są wyłączone";
+    return;
+  }
   const now = serverClockAtRead === null ? Date.now() : serverClockAtRead + performance.now() - clockReadAt;
   const sources = (statusPayload?.enabled_sources || []).map((source) => statusPayload.sources[source]);
   const state = fullScanClockState(sources, now, sourceScheduleAvailable);
