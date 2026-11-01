@@ -1,0 +1,44 @@
+{
+  "index.html": [
+    ["<html>", "<html lang=\"pl\">"],
+    ["<title>Homer</title>", "<title>SNUT - Monitor OSD</title>"]
+  ],
+  "src/assets/defaults.yml": [
+    ["title: \"Dashboard\"", "title: \"Pulpit SNUT\""],
+    ["Created with <span class=\"has-text-danger\">❤️</span> with ", "Utworzono z <span class=\"has-text-danger\">❤️</span> przy użyciu "],
+    [" & <a href=\"https://fontawesome.com/\">", " i <a href=\"https://fontawesome.com/\">"],
+    [" // Fork me on ", " // Utwórz kopię repozytorium na "]
+  ],
+  "src/App.vue": [
+    ["alt=\"dashboard logo\"", "alt=\"Logo pulpitu\""],
+    ["⚠️ Error loading configuration", "⚠️ Nie udało się wczytać konfiguracji"],
+    ["name=\"vlayout\"", "name=\"vlayout\"\n          aria-label=\"Zmień układ pulpitu\"\n          title=\"Zmień układ pulpitu\""]
+  ],
+  "src/components/Navbar.vue": [
+    ["aria-label=\"main navigation\"", "aria-label=\"Nawigacja główna\""],
+    ["aria-label=\"menu\"", "aria-label=\"Otwórz lub zamknij menu\""]
+  ],
+  "src/components/DarkMode.vue": [
+    ["aria-label=\"Toggle dark mode\"", "aria-label=\"Zmień motyw kolorystyczny\""],
+    ["\"Auto-switch\", \"Light theme\", \"Dark theme\"", "\"Motyw zgodny z ustawieniami systemu\", \"Jasny motyw\", \"Ciemny motyw\""]
+  ],
+  "src/components/SearchInput.vue": [
+    ["type=\"search\"", "type=\"search\"\n        aria-label=\"Szukaj na pulpicie SNUT\"\n        placeholder=\"Szukaj na pulpicie\""]
+  ],
+  "src/components/ConnectivityChecker.vue": [
+    ["Network unreachable", "Brak połączenia z aplikacją"],
+    ["aria-label=\"Retry connection check\"", "aria-label=\"Sprawdź połączenie ponownie\""],
+    ["More information →", "Więcej informacji →"]
+  ],
+  "src/components/GetStarted.vue": [
+    ["No configuration found!", "Nie znaleziono konfiguracji."],
+    ["Check out the documentation to start building your dashboard.", "Sprawdź dokumentację, aby skonfigurować pulpit."],
+    ["Get started →", "Instrukcja konfiguracji →"]
+  ],
+  "src/components/services/_error.vue": [
+    ["Failed to load component", "Nie udało się wczytać elementu pulpitu"]
+  ],
+  "src/mixins/service.js": [
+    ["Fail to fetch ressource: (${response.status} error)", "Nie udało się pobrać zasobu (HTTP ${response.status})."]
+  ]
+}

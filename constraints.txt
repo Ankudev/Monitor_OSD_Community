@@ -1,0 +1,16 @@
+# Zatwierdzony zestaw runtime; używany przez requirements.txt i paczkę wydania.
+aiohappyeyeballs==2.7.1
+aiohttp==3.14.5
+argon2-cffi==25.1.0
+argon2-cffi-bindings==26.1.0
+cffi==2.1.1
+pycparser==3.12
+aiosignal==1.4.0
+attrs==26.1.0
+frozenlist==1.8.0
+idna==3.19
+multidict==6.9.1
+propcache==0.5.2
+typing_extensions==4.16.0
+yarl==1.25.1
+tzdata==2026.2; platform_system == "Windows"

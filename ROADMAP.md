@@ -1,0 +1,7 @@
+# Plan rozwoju
+
+- `0.1.0-alpha`: oddzielny projekt, syntetyczne demo, 16 miejscowości, mapa, API, SNUT i testy izolacji.
+- Kolejny etap: odbiór profilu rzeczywistych źródeł, udokumentowany import słowników miejscowości i ulic oraz ocena warunków wykorzystania danych.
+- Następnie: łatwiejsza konfiguracja własnej instalacji, diagnostyka aktualizacji i poprawki wynikające ze zgłoszeń społeczności.
+
+Nie planujemy otwartej edycji hostowanego katalogu ani automatycznych wdrożeń kodu z niezweryfikowanych pull requestów. Wspólny silnik rozwijamy w tym repozytorium; prywatne dane i konfiguracje pozostają poza nim.

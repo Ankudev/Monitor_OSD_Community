@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pl">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pochodzenie i publikacja danych. Monitor OSD Polska</title>
+<link rel="stylesheet" href="/static/style.css"><link rel="stylesheet" href="/static/readme.css">
+<script src="/static/publication-admin.js" defer></script></head>
+<body><main class="readme-main"><article class="readme-card">
+<p><a href="/?view=objects">Wróć do katalogu</a></p>
+<h1>Pochodzenie i publikacja danych</h1>
+<p>Publikuj tylko wartości o ustalonym pochodzeniu i dopuszczalnym zakresie wykorzystania. Zapis decyzji nie zastępuje licencji. Zmiana wartości pola unieważnia jego dotychczasowe zatwierdzenie.</p>
+<p id="policyMessage" role="status" aria-live="polite">Wczytywanie decyzji…</p>
+<form id="publicationForm">
+<label>Obiekt <select id="publicationObject" required></select></label>
+<label>Widoczność <select id="publicationVisibility"><option value="private">Prywatny</option><option value="public">Publiczny w zatwierdzonym zakresie</option></select></label>
+<div id="publicationFields"></div>
+<label>Powód decyzji <input id="publicationReason" maxlength="1000" required></label>
+<p><button type="submit">Zapisz decyzję</button> <button type="button" id="publicationReload">Wczytaj ponownie</button></p>
+</form>
+<h2>Źródła i zakres działania</h2><p>Zmiana zasad całego źródła wymaga osobnej oceny zakresu. Poniżej podano aktualne decyzje, nie zapewnienie zgodności prawnej.</p>
+<div id="publicationSources"></div>
+</article></main></body></html>

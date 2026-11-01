@@ -1,0 +1,152 @@
+.readme-main {
+  width: min(78ch, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 38px 0 60px;
+}
+
+.readme-card {
+  padding: 28px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.readme-card h1 {
+  margin: 0 0 12px;
+  color: var(--navy);
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3.15rem);
+  line-height: 1.05;
+}
+
+.readme-card h2 {
+  margin: 34px 0 10px;
+  padding-top: 8px;
+  color: var(--navy);
+  font-family: Georgia, serif;
+  font-size: 1.45rem;
+}
+
+.readme-card h3 {
+  margin: 24px 0 8px;
+  color: var(--navy);
+  font-size: 1.05rem;
+}
+
+.readme-card p,
+.readme-card li {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.readme-main p,
+.readme-main li {
+  overflow-wrap: anywhere;
+}
+
+.readme-main table {
+  width: 100%;
+}
+
+.readme-main th,
+.readme-main td {
+  overflow-wrap: anywhere;
+  vertical-align: top;
+}
+
+.readme-card a {
+  color: var(--blue);
+  font-weight: 700;
+}
+
+.readme-card .lead {
+  margin-top: 0;
+  color: var(--muted);
+  font-size: 1.08rem;
+}
+
+.readme-toc {
+  margin: 24px 0 30px;
+  padding: 16px 18px;
+  background: #f7f7f5;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.readme-toc strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--navy);
+}
+
+.readme-toc ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.readme-main code {
+  padding: 2px 5px;
+  background: #f7f7f5;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-family: Consolas, "Liberation Mono", monospace;
+  font-size: .92em;
+}
+
+.readme-main pre {
+  max-width: 100%;
+  overflow: auto;
+  margin: 14px 0;
+  padding: 14px 16px;
+  color: #d8e1ee;
+  background: #111b2b;
+  border-radius: 7px;
+}
+
+.readme-main pre code {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border: 0;
+}
+
+.readme-note {
+  padding: 12px 14px;
+  color: var(--text);
+  background: #f7f7f5;
+  border-left: 4px solid var(--blue);
+  border-radius: 8px;
+}
+
+@media (max-width: 680px) {
+  .readme-main {
+    width: min(100% - 24px, 78ch);
+    padding-top: 24px;
+  }
+
+  .readme-card {
+    padding: 20px 16px;
+  }
+}
+
+@media print {
+  body {
+    color: #111827;
+    background: #fff;
+  }
+
+  .topbar,
+  .view-navigation,
+  .readme-main {
+    width: 100%;
+    padding: 0;
+  }
+
+  .readme-card {
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+  }
+}

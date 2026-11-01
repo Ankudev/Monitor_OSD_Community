@@ -1,0 +1,70 @@
+---
+title: "SNUT"
+subtitle: "Monitor OSD"
+documentTitle: "SNUT. Monitor OSD"
+icon: "fas fa-bolt"
+header: true
+footer: false
+theme: default
+stylesheet: "assets/custom.css?v=20261022-pagespeed-1"
+columns: "1"
+connectivityCheck: true
+updateIntervalMs: 30000
+defaults:
+  layout: columns
+  colorTheme: auto
+  iconWidth: fixed
+colors:
+  light:
+    highlight-primary: "#1769aa"
+    highlight-secondary: "#24344d"
+    highlight-hover: "#0f568f"
+    background: "#f4f2ed"
+    card-background: "#ffffff"
+    text: "#1f2937"
+    text-header: "#ffffff"
+    text-title: "#17243a"
+    text-subtitle: "#586477"
+    card-shadow: "rgba(31, 42, 55, 0.09)"
+    link: "#1769aa"
+    link-hover: "#0f568f"
+  dark:
+    highlight-primary: "#318bd0"
+    highlight-secondary: "#17243a"
+    highlight-hover: "#5aa6df"
+    background: "#111827"
+    card-background: "#1f2937"
+    text: "#e5e7eb"
+    text-header: "#ffffff"
+    text-title: "#f9fafb"
+    text-subtitle: "#cbd5e1"
+    card-shadow: "rgba(0, 0, 0, 0.35)"
+    link: "#5aa6df"
+    link-hover: "#91c7ee"
+links:
+  - name: "Mapa OSD"
+    icon: "fas fa-map"
+    url: "/"
+  - name: "Moje obiekty"
+    icon: "fas fa-location-dot"
+    url: "/?view=objects"
+  - name: "README"
+    icon: "fas fa-book"
+    url: "/readme"
+services:
+  - name: "Pulpit SNUT"
+    icon: "fas fa-bolt"
+    items:
+      - name: "Monitor OSD"
+        type: "OsdMonitor"
+        endpoint: "/api"
+        url: "/"
+        updateIntervalMs: 30000
+        class: "osd-monitor-card"
+  - name: "Narzędzia"
+    icon: "fas fa-toolbox"
+    items:
+      - name: "Mapa awarii i wyłączeń"
+        subtitle: "Szczegóły zdarzeń i zarządzanie obiektami"
+        icon: "fas fa-map-location-dot"
+        url: "/"

@@ -1,0 +1,24 @@
+[Unit]
+Description=Monitor OSD Community — demo
+After=network.target
+
+[Service]
+Type=simple
+User=osd-community
+Group=osd-community
+WorkingDirectory=/opt/monitor-osd-community/current
+EnvironmentFile=-/etc/monitor-osd-community/demo.env
+ExecStart=/opt/monitor-osd-community/venv/bin/python /opt/monitor-osd-community/current/app.py --profile demo --data-dir /var/lib/monitor-osd-community --host :: --port 8082 --snut-dir /opt/monitor-osd-community/current/snut
+Restart=on-failure
+RestartSec=5
+StateDirectory=monitor-osd-community
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/monitor-osd-community
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

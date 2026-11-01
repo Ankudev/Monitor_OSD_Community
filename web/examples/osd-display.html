@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Prosty wyświetlacz OSD</title>
+  <style>body{max-width:620px;margin:50px auto;padding:20px;background:#132033;color:#fff;font:18px system-ui}.box{background:#1d304b;border-radius:16px;padding:24px}input,button{box-sizing:border-box;width:100%;padding:12px;margin:6px 0;font:inherit}button{background:#ef7422;color:#fff;border:0;border-radius:8px}small{color:#b9c8d9}pre{white-space:pre-wrap}</style>
+</head>
+<body>
+  <div class="box">
+    <h1>Stan obiektu OSD</h1>
+    <label>ID obiektu<input id="objectId" placeholder="Wklej object_id z /api/v1/objects"></label>
+    <button id="load">Pobierz dane</button>
+    <p id="message">Podaj ID obiektu.</p>
+    <small id="freshness"></small>
+    <pre id="details"></pre>
+  </div>
+  <script src="/static/event-view.js?v=20261023-zrodla-2"></script>
+  <script>
+    const id = document.querySelector('#objectId');
+    const message = document.querySelector('#message');
+    const freshness = document.querySelector('#freshness');
+    const details = document.querySelector('#details');
+    async function load() {
+      if (!id.value.trim()) return;
+      message.textContent = 'Pobieranie…';
+      try {
+        const response = await fetch('/api/v1/display/' + encodeURIComponent(id.value.trim()));
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error?.message || 'Błąd HTTP ' + response.status);
+        message.textContent = data.message;
+        freshness.textContent = `Stan danych: ${OsdEventView.dataStatus(data.data_status)}; ostatni poprawny odczyt: ${OsdEventView.formatDate(data.last_success_at)}`;
+        details.textContent = `Zdarzenia: ${data.outage_count ?? 'brak danych'}\nPlanowane teraz: ${data.planned_now_count ?? 'brak danych'}\nPlanowane później: ${data.planned_future_count ?? 'brak danych'}\nNastępny odczyt za: ${data.poll_after_seconds} s`;
+      } catch (error) { message.textContent = `Nie udało się pobrać danych: ${error.message}`; }
+    }
+    document.querySelector('#load').addEventListener('click', load);
+  </script>
+</body>
+</html>

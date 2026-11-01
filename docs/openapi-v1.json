@@ -1,0 +1,2635 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Monitor OSD Polska API",
+    "version": "1.7.0",
+    "description": "Publiczne API tylko do odczytu. Odczyt nie uruchamia skanów operatorów. Bieżące zdarzenia obejmują tylko włączone źródła i istniejące, niezmienione obiekty. Lokalizacje, mapa i display zawierają matching_pending_sources (lista kodów operatorów); źródła zawierają matching_pending_count. Oczekiwanie oznacza data_status=partial; liczniki display są wtedy null. Liczniki list obejmują wyłącznie widoczne zdarzenia. Historia pozostaje zachowana. Obiekty i lokalizacje mają opcjonalne house_number (tekst/null) oraz publiczne address_audit (status, checked_at, reason). Prywatne dowody nie są publikowane. Dokładne potwierdzenie adresowe obsługuje PGE po audycie; pozostałe źródła pozostają unknown. Pole Radius operatora TAURON nie jest kryterium dopasowania. Obiekty i lokalizacje zawierają power_supply (generator, secondary_feed oraz notes w pełnym widoku). To informacja użytkownika, bez wpływu na dopasowania. R8 dodaje match_explanation.version=1 z metodą, zakresem, podstawą, oceną dowodu i ograniczeniami. match_confidence nadal jest metodą, match_evidence.version=2 nadal określa potwierdzenie. Compact pomija details. Ocena nie jest pomiarem napięcia. Starsza historia może nie zawierać wyjaśnienia. Czas operatora bez przesunięcia względem UTC oznacza Europe/Warsaw. Bieżące daty zdarzeń są w UTC; niepoprawna data daje null. Nieistniejąca godzina DST daje niepoprawne okno, niejednoznaczna bez przesunięcia względem UTC zachowuje fold=0; diagnostyka zgłasza ostrzeżenia. Historia jest niezmienna i starsze wpisy mogą zachować poprzednią interpretację czasu. Przedziały czasu zawierają przesunięcie względem UTC dla strefy Europe/Warsaw; stan aktualności, błędy oraz terminy pobierania należą do tego źródła. Plan nie wpływa na dopasowania i historię OSD. Import jest stopniowy; postęp nie oznacza kompletności szczegółów. Monitoring wymagający logowania nie jest zbierany.\nPubliczny katalog nie udostępnia wyposażenia zasilania ani słów dopasowania. Szczegółowa diagnostyka, raporty lokalizacji i include_raw=1 wymagają sesji administratora. Punkty /health/live i /health/ready oceniają lokalną usługę niezależnie od OSD. Prywatny stan operacyjny, migawki i historia powiadomień wymagają uprawnień opisanych przy trasach.\nPubliczny zakres zależy od decyzji publikacji. Niepubliczny obiekt zwraca 404. Dane RadioPolski i pozostałych źródeł mają osobne warunki."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/v1/": {
+      "get": {
+        "summary": "Indeks API",
+        "responses": {
+          "200": {
+            "description": "Lista punktów końcowych API"
+          }
+        }
+      }
+    },
+    "/api/v1/summary": {
+      "get": {
+        "summary": "Podsumowanie danych",
+        "responses": {
+          "200": {
+            "description": "Liczniki i świeżość"
+          }
+        }
+      }
+    },
+    "/api/v1/sources": {
+      "get": {
+        "summary": "Stan źródeł OSD",
+        "responses": {
+          "200": {
+            "description": "Stan pięciu źródeł",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SourcePage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/locations": {
+      "get": {
+        "summary": "Pełny katalog monitorowanych lokalizacji w jednej odpowiedzi",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wszystkie lokalizacje, dane TERYT, GPS, audyt i liczniki zdarzeń"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "description": "Obiekt zawiera house_number i bezpieczne address_audit opisane w ObjectAddress."
+      }
+    },
+    "/api/v1/locations/{object_id}": {
+      "get": {
+        "summary": "Pełne dane jednej monitorowanej lokalizacji",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/objectId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lokalizacja"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/localities": {
+      "get": {
+        "summary": "Unikalne miejscowości używane przez zapisane obiekty",
+        "responses": {
+          "200": {
+            "description": "Miejscowości z kodami TERYT, obiektami i licznikami zdarzeń"
+          }
+        }
+      }
+    },
+    "/api/v1/localities/{city_sym}": {
+      "get": {
+        "summary": "Miejscowość i wszystkie przypisane do niej lokalizacje",
+        "parameters": [
+          {
+            "name": "city_sym",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Miejscowość i lokalizacje"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/map": {
+      "get": {
+        "summary": "Spójna migawka danych głównej mapy i panelu SNUT",
+        "responses": {
+          "200": {
+            "description": "Lokalizacje, dopasowane zdarzenia, stan źródeł i liczniki; zdarzenia zawierają match_explanation, pełny widok zawiera details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EventMatching"
+                      }
+                    },
+                    "item": {
+                      "$ref": "#/components/schemas/EventMatching"
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EventMatching"
+                      }
+                    },
+                    "sources": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SourceState"
+                      }
+                    }
+                  },
+                  "required": []
+                }
+              }
+            }
+          }
+        },
+        "description": "Wspólna migawka katalogu i przypisań. match_evidence rozróżnia potwierdzenie punktu i kandydata. geometries to słownik geometry_ref -> GeoJSON Polygon/MultiPolygon/MultiPoint; niezależne punkty nie tworzą obszaru. Obiekt zawiera house_number i bezpieczne address_audit opisane w ObjectAddress."
+      }
+    },
+    "/api/v1/objects": {
+      "get": {
+        "summary": "Lista monitorowanych obiektów",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/snapshot"
+          },
+          {
+            "$ref": "#/components/parameters/view"
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stronicowana lista"
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "description": "Obiekt zawiera house_number i bezpieczne address_audit opisane w ObjectAddress."
+      }
+    },
+    "/api/v1/objects/{object_id}": {
+      "get": {
+        "summary": "Szczegóły obiektu",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/objectId"
+          },
+          {
+            "$ref": "#/components/parameters/view"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Obiekt"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "description": "Obiekt zawiera house_number i bezpieczne address_audit opisane w ObjectAddress."
+      }
+    },
+    "/api/v1/events": {
+      "get": {
+        "summary": "Lista zdarzeń dopasowanych do obiektów",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/snapshot"
+          },
+          {
+            "$ref": "#/components/parameters/view"
+          },
+          {
+            "name": "object_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pge",
+                "tauron",
+                "energa",
+                "enea",
+                "stoen"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "time_phase",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ongoing",
+                "upcoming",
+                "overdue",
+                "closed",
+                "unknown"
+              ]
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "match_scope",
+            "in": "query",
+            "required": false,
+            "description": "confirmed: objęcie punktu potwierdzone w jawnym obszarze operatora. candidate: niepotwierdzone, również starsze wpisy. Bez filtra zwracamy wszystkie przypisania.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "confirmed",
+                "candidate"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stronicowana lista; zdarzenia zawierają match_explanation, pełny widok zawiera details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/events/{event_id}": {
+      "get": {
+        "summary": "Szczegóły zdarzenia",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "include_raw",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "0",
+                "1"
+              ],
+              "default": "0"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zdarzenie; zdarzenia zawierają match_explanation, pełny widok zawiera details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/display/{object_id}": {
+      "get": {
+        "summary": "Mała odpowiedź dla ESP32 lub prostej strony",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/objectId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Odpowiedź do 2048 bajtów"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          }
+        },
+        "description": "Liczniki dotyczą tylko potwierdzonego objęcia punktu. candidate_count podaje komunikaty do sprawdzenia. Zero nie potwierdza działania zasilania."
+      }
+    },
+    "/api/v1/history": {
+      "get": {
+        "summary": "Trwała historia zmian SQLite, bez limitu 200 całego archiwum",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/limit"
+          },
+          {
+            "$ref": "#/components/parameters/offset"
+          },
+          {
+            "$ref": "#/components/parameters/snapshot"
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "object_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Strona historii: trwałe history_id UUID, before/after, origin, recorded_at, archive_started_at, available_from, complete=false, retention_days=null; next wskazuje następną stronę",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HistoryPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          },
+          "503": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      }
+    },
+    "/api/v1/export.json": {
+      "get": {
+        "summary": "Stan i podgląd do 200 wpisów o zakończeniu publikacji lub dopasowania komunikatu, pełna historia przez /history",
+        "responses": {
+          "200": {
+            "description": "Stan źródeł, obiekty, zdarzenia i historia; zdarzenia zawierają match_explanation, pełny widok zawiera details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EventMatching"
+                      }
+                    },
+                    "item": {
+                      "$ref": "#/components/schemas/EventMatching"
+                    },
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/EventMatching"
+                      }
+                    }
+                  },
+                  "required": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/export.csv": {
+      "get": {
+        "summary": "Eksport CSV",
+        "parameters": [
+          {
+            "name": "dataset",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "events",
+                "objects",
+                "history"
+              ],
+              "default": "events"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSV; dataset=history to do 200 ostatnich wpisów o zakończeniu publikacji lub dopasowania komunikatu; nagłówki X-History-Total, X-History-Truncated i Link opisują ograniczenie"
+          }
+        }
+      }
+    },
+    "/api/v1/openapi.json": {
+      "get": {
+        "summary": "Ten dokument OpenAPI",
+        "responses": {
+          "200": {
+            "description": "OpenAPI 3.1.1"
+          }
+        }
+      }
+    },
+    "/api/v1/objects/{object_id}/location-review": {
+      "get": {
+        "summary": "Odczyt zapisanego porównania z PRG, bez żądań do Geoportalu",
+        "parameters": [
+          {
+            "name": "object_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zapisany wynik lub not_checked; zgodność nie jest dowodem adresu obiektu ani zasilania"
+          },
+          "304": {
+            "description": "Wynik bez zmian"
+          },
+          "400": {
+            "description": "Niepoprawne parametry"
+          },
+          "404": {
+            "description": "Nieznany obiekt"
+          },
+          "503": {
+            "description": "Błąd odczytu raportu"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ]
+      }
+    },
+    "/api/location/check": {
+      "post": {
+        "summary": "Limitowane porównanie istniejącego obiektu z PRG, bez edycji katalogu i bez klucza",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "object_id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "object_id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wynik porównania; item oraz cached"
+          },
+          "400": {
+            "description": "Niepoprawny JSON lub pola"
+          },
+          "404": {
+            "description": "Nieznany obiekt"
+          },
+          "409": {
+            "description": "Obiekt zmieniono podczas odczytu"
+          },
+          "415": {
+            "description": "Wymagany JSON"
+          },
+          "429": {
+            "description": "Pauza dostawcy, Retry-After"
+          },
+          "503": {
+            "description": "Problem dostawcy, kolejki lub wyłączona funkcja"
+          }
+        }
+      }
+    },
+    "/api/v1/diagnostics/scans": {
+      "get": {
+        "summary": "Zapisane próby OSD",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "source",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zapisane dane. Punkt końcowy API nie uruchamia skanów.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "api_version": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ScanRun"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Dane bez zmian"
+          },
+          "400": {
+            "description": "Błędne parametry"
+          },
+          "409": {
+            "description": "Zmieniona migawka jakości"
+          },
+          "503": {
+            "description": "Diagnostyka lub raport niedostępne"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ]
+      }
+    },
+    "/api/v1/diagnostics/quality": {
+      "get": {
+        "summary": "Raport jakości katalogu bez zapytań sieciowych",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "default": 50
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "snapshot_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Zapisane dane. Punkt końcowy API nie uruchamia skanów.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "api_version": {
+                      "type": "string"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/QualityIssue"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Dane bez zmian"
+          },
+          "400": {
+            "description": "Błędne parametry"
+          },
+          "409": {
+            "description": "Zmieniona migawka jakości"
+          },
+          "503": {
+            "description": "Diagnostyka lub raport niedostępne"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ]
+      }
+    },
+    "/health/live": {
+      "get": {
+        "summary": "Odpowiedź procesu",
+        "responses": {
+          "200": {
+            "description": "Poprawna odpowiedź",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocalHealth"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "summary": "Odczyt lokalnego magazynu",
+        "responses": {
+          "200": {
+            "description": "Poprawna odpowiedź",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocalHealth"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Magazyn niedostępny"
+          }
+        }
+      }
+    },
+    "/api/admin/operations": {
+      "get": {
+        "summary": "Stan zadań, źródeł, API, kolejki, dysku i kopii",
+        "responses": {
+          "200": {
+            "description": "Poprawna odpowiedź",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationsStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Brak uprawnień"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ]
+      }
+    },
+    "/api/operations": {
+      "get": {
+        "summary": "Stan zadań, źródeł, API, kolejki, dysku i kopii",
+        "responses": {
+          "200": {
+            "description": "Poprawna odpowiedź",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationsStatus"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Brak uprawnień"
+          }
+        },
+        "security": [
+          {
+            "OperationsReadToken": []
+          }
+        ]
+      }
+    },
+    "/api/admin/backups/snapshot": {
+      "post": {
+        "summary": "Utworzenie kompletnej migawki aplikacji",
+        "responses": {
+          "200": {
+            "description": "Poprawna odpowiedź",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackupSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Niedozwolone parametry lub treść"
+          },
+          "401": {
+            "description": "Brak uprawnień"
+          },
+          "403": {
+            "description": "Niepoprawny Origin lub CSRF dla sesji"
+          },
+          "409": {
+            "description": "Migawka jest już tworzona"
+          },
+          "503": {
+            "description": "Brak konfiguracji, miejsca lub poprawnej kopii"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "description": "Bez treści i parametrów ścieżki. Miejsce określa PGE_BACKUP_STAGING. Nie uruchamia wysyłki do restic. Sesja administratora wymaga Origin i X-CSRF-Token; osobny token kopii nie daje praw administratora.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-CSRF-Token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Origin",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            }
+          }
+        ]
+      }
+    },
+    "/api/operations/snapshot": {
+      "post": {
+        "summary": "Utworzenie kompletnej migawki aplikacji",
+        "responses": {
+          "200": {
+            "description": "Poprawna odpowiedź",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BackupSnapshot"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Niedozwolone parametry lub treść"
+          },
+          "401": {
+            "description": "Brak uprawnień"
+          },
+          "403": {
+            "description": "Niepoprawny Origin lub CSRF dla sesji"
+          },
+          "409": {
+            "description": "Migawka jest już tworzona"
+          },
+          "503": {
+            "description": "Brak konfiguracji, miejsca lub poprawnej kopii"
+          }
+        },
+        "security": [
+          {
+            "BackupToken": []
+          }
+        ],
+        "description": "Bez treści i parametrów ścieżki. Miejsce określa PGE_BACKUP_STAGING. Nie uruchamia wysyłki do restic. Sesja administratora wymaga Origin i X-CSRF-Token; osobny token kopii nie daje praw administratora."
+      }
+    },
+    "/api/admin/push/config": {
+      "get": {
+        "summary": "Publiczny identyfikator OneSignal dla zalogowanego administratora",
+        "description": "Nie zwraca klucza, listy odbiorców ani danych urządzeń. Cache-Control: no-store.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Identyfikator aplikacji",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "app_id"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "app_id": {
+                      "type": "string",
+                      "format": "uuid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Brak sesji administratora"
+          },
+          "503": {
+            "description": "Powiadomienia push nie są skonfigurowane"
+          }
+        }
+      }
+    },
+    "/api/admin/push/setup": {
+      "get": {
+        "summary": "Prywatna strona konfiguracji subskrypcji przeglądarki",
+        "description": "SDK dostawcy jest wczytywane dopiero po kliknięciu. Subskrypcja nie dodaje urządzenia do listy odbiorców serwera.",
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Strona HTML, bez sekretów"
+          },
+          "401": {
+            "description": "Brak sesji administratora"
+          }
+        }
+      }
+    },
+    "/api/admin/notifications": {
+      "get": {
+        "summary": "Prywatna historia zadań powiadomień",
+        "responses": {
+          "200": {
+            "description": "Poprawna odpowiedź",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeliveryHistoryPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Niepoprawne parametry"
+          },
+          "401": {
+            "description": "Brak sesji"
+          },
+          "503": {
+            "description": "Magazyn niedostępny"
+          }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "description": "Nie zwraca adresu odbiorcy, treści wysyłki ani surowego błędu. Przyjęcie przez system odbiorcy nie potwierdza przeczytania wiadomości. Nieznane i powtórzone parametry są odrzucane.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "enum": [
+                "pending",
+                "sending",
+                "delivered",
+                "failed",
+                "skipped"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 200,
+          "default": 50
+        }
+      },
+      "offset": {
+        "name": "offset",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      },
+      "snapshot": {
+        "name": "snapshot_id",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "view": {
+        "name": "view",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "compact",
+            "full"
+          ],
+          "default": "compact"
+        }
+      },
+      "objectId": {
+        "name": "object_id",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Błąd z kodem maszynowym i komunikatem",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ApiError"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ObjectAddress": {
+        "type": "object",
+        "properties": {
+          "house_number": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 32,
+            "description": "Rzeczywisty numer domu; brak wiedzy to null. Wpisanie numeru nie weryfikuje adresu.",
+            "examples": [
+              "12A",
+              "12/3",
+              null
+            ]
+          },
+          "address_audit": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "verified",
+                  "requires_review",
+                  "unknown"
+                ]
+              },
+              "checked_at": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          },
+          "provenance": {
+            "type": "object",
+            "description": "Pochodzenie dopuszczonych pól obiektu."
+          }
+        }
+      },
+      "PowerSupply": {
+        "type": "object",
+        "description": "Deklarowane wyposażenie obiektu, bez pomiaru sprawności. Wartość unknown oznacza brak uzupełnienia; none zapisany brak. Pole notes jest pomijane w widoku compact. PATCH administracyjny scala podane podpola.",
+        "required": [
+          "generator",
+          "secondary_feed"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "generator": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "none",
+              "manual",
+              "szr"
+            ]
+          },
+          "secondary_feed": {
+            "type": "string",
+            "enum": [
+              "unknown",
+              "none",
+              "manual",
+              "szr"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Uwagi eksploatacyjne użytkownika; pełny widok."
+          }
+        }
+      },
+      "MatchNumberSet": {
+        "type": "object",
+        "properties": {
+          "original": {
+            "type": [
+              "string",
+              "array",
+              "null"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "excluded": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "parity": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "unrecognized": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": []
+      },
+      "MatchAddressRow": {
+        "type": "object",
+        "properties": {
+          "row_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "object_city_sym": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "object_street_sym": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "object_house_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_city_sym": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_street_sym": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "result": {
+            "enum": [
+              "matches",
+              "does_not_match",
+              "unknown"
+            ]
+          },
+          "numbers": {
+            "$ref": "#/components/schemas/MatchNumberSet"
+          }
+        },
+        "required": []
+      },
+      "MatchAddressDetails": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "enum": [
+              "matches",
+              "does_not_match",
+              "unknown"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "unknown_row_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "row_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "row_results": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "matches",
+                "does_not_match",
+                "unknown"
+              ]
+            }
+          },
+          "rows": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/MatchAddressRow"
+            }
+          }
+        },
+        "required": []
+      },
+      "MatchGeometryDetails": {
+        "type": "object",
+        "properties": {
+          "geometry_ref": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "enum": [
+              "Polygon",
+              "MultiPolygon",
+              "legacy_polygon"
+            ]
+          },
+          "result": {
+            "enum": [
+              "inside",
+              "outside",
+              "hole",
+              "outer_boundary",
+              "hole_boundary"
+            ]
+          },
+          "contains": {
+            "type": "boolean"
+          },
+          "polygon_index": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          }
+        },
+        "required": []
+      },
+      "MatchProximityDetails": {
+        "type": "object",
+        "properties": {
+          "latitude": {
+            "type": "number"
+          },
+          "longitude": {
+            "type": "number"
+          },
+          "distance_m": {
+            "type": "number",
+            "minimum": 0
+          },
+          "limit_m": {
+            "type": "number",
+            "minimum": 0
+          },
+          "limit_source": {
+            "enum": [
+              "application_config",
+              "operator_radius"
+            ]
+          }
+        },
+        "required": [
+          "distance_m",
+          "limit_m",
+          "limit_source"
+        ]
+      },
+      "MatchExplanationDetails": {
+        "type": "object",
+        "properties": {
+          "object_city_sym": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "object_street_sym": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "object_house_number": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "address": {
+            "$ref": "#/components/schemas/MatchAddressDetails"
+          },
+          "street_compared": {
+            "type": "boolean"
+          },
+          "matched_teryt": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "city_sym": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "street_sym": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "required": []
+            }
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/MatchGeometryDetails"
+          },
+          "proximity": {
+            "$ref": "#/components/schemas/MatchProximityDetails"
+          },
+          "county_code": {
+            "type": "string"
+          },
+          "text": {
+            "type": "object",
+            "properties": {
+              "city": {
+                "type": "string"
+              },
+              "street": {
+                "type": "string"
+              },
+              "keyword": {
+                "type": "string"
+              },
+              "commune": {
+                "type": "string"
+              },
+              "fragment": {
+                "type": "string"
+              }
+            },
+            "required": []
+          },
+          "variants": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "method": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                },
+                "basis": {
+                  "type": "string"
+                },
+                "geometry_ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "periods": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                },
+                "details": {
+                  "$ref": "#/components/schemas/MatchExplanationDetails"
+                }
+              },
+              "required": []
+            }
+          }
+        },
+        "required": []
+      },
+      "MatchExplanationCompact": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "rule_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "method": {
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "confirmed_point",
+              "candidate",
+              "unknown"
+            ]
+          },
+          "basis": {
+            "enum": [
+              "address",
+              "street",
+              "locality",
+              "geometry",
+              "proximity",
+              "county",
+              "keyword",
+              "conflict",
+              "unknown"
+            ]
+          },
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              "unknown"
+            ],
+            "description": "Ocena dowodu reguły: wysoka, ograniczona, niska, nieustalona. Nie prawdopodobieństwo wyłączenia."
+          },
+          "reason_code": {
+            "enum": [
+              "verified_address_match",
+              "street_match_only",
+              "locality_match_only",
+              "keyword_match_only",
+              "county_match_only",
+              "address_geometry_conflict",
+              "geometry_match",
+              "geometry_unverified",
+              "proximity_match_only",
+              "unknown",
+              "legacy_explanation_missing"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "limitations": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "location_review_required",
+                "location_not_audited",
+                "address_not_verified",
+                "house_number_missing",
+                "numbers_unparsed",
+                "locality_only",
+                "street_only",
+                "proximity_only",
+                "radius_extent_unverified",
+                "address_geometry_conflict",
+                "legacy_explanation_missing",
+                "details_truncated",
+                "variant_bases_differ"
+              ]
+            }
+          }
+        },
+        "required": [
+          "version",
+          "rule_version",
+          "method",
+          "scope",
+          "basis",
+          "confidence",
+          "reason_code",
+          "reason",
+          "limitations"
+        ]
+      },
+      "MatchExplanation": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "const": 1
+          },
+          "rule_version": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "method": {
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "confirmed_point",
+              "candidate",
+              "unknown"
+            ]
+          },
+          "basis": {
+            "enum": [
+              "address",
+              "street",
+              "locality",
+              "geometry",
+              "proximity",
+              "county",
+              "keyword",
+              "conflict",
+              "unknown"
+            ]
+          },
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low",
+              "unknown"
+            ],
+            "description": "Ocena dowodu reguły: wysoka, ograniczona, niska, nieustalona. Nie prawdopodobieństwo wyłączenia."
+          },
+          "reason_code": {
+            "enum": [
+              "verified_address_match",
+              "street_match_only",
+              "locality_match_only",
+              "keyword_match_only",
+              "county_match_only",
+              "address_geometry_conflict",
+              "geometry_match",
+              "geometry_unverified",
+              "proximity_match_only",
+              "unknown",
+              "legacy_explanation_missing"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "limitations": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "enum": [
+                "location_review_required",
+                "location_not_audited",
+                "address_not_verified",
+                "house_number_missing",
+                "numbers_unparsed",
+                "locality_only",
+                "street_only",
+                "proximity_only",
+                "radius_extent_unverified",
+                "address_geometry_conflict",
+                "legacy_explanation_missing",
+                "details_truncated",
+                "variant_bases_differ"
+              ]
+            }
+          },
+          "details": {
+            "$ref": "#/components/schemas/MatchExplanationDetails"
+          }
+        },
+        "required": [
+          "version",
+          "rule_version",
+          "method",
+          "scope",
+          "basis",
+          "confidence",
+          "reason_code",
+          "reason",
+          "limitations",
+          "details"
+        ]
+      },
+      "EventMatching": {
+        "type": "object",
+        "properties": {
+          "match_confidence": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "match_evidence": {
+            "type": "object",
+            "description": "Istniejąca struktura wersji 2; point_confirmed jest bramką objęcia punktu."
+          },
+          "match_explanation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MatchExplanation"
+              },
+              {
+                "$ref": "#/components/schemas/MatchExplanationCompact"
+              }
+            ]
+          }
+        },
+        "required": []
+      },
+      "ScanRun": {
+        "type": "object",
+        "required": [
+          "scan_id",
+          "source",
+          "status",
+          "completeness",
+          "request_count",
+          "timings_ms"
+        ],
+        "properties": {
+          "scan_id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "pge",
+              "tauron",
+              "energa",
+              "enea",
+              "stoen"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "running",
+              "success",
+              "failed",
+              "interrupted"
+            ]
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "fetch",
+              "parse",
+              "match",
+              "persist"
+            ]
+          },
+          "completeness": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "incomplete",
+              "unknown"
+            ]
+          },
+          "request_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "retry_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "resource_count": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Liczba różnych adresów zasobów, nie liczba stron paginacji POST."
+          },
+          "timings_ms": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "number",
+              "minimum": 0
+            },
+            "description": "Suma czasów zmierzonych operacji; równoległe żądania mogą przekroczyć czas ścienny."
+          },
+          "timing_scope": {
+            "type": "string",
+            "enum": [
+              "instrumented_operations"
+            ]
+          },
+          "state_revision": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "source_event_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "message": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "finished_at": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "record_count_drop",
+                "unknown_event_types"
+              ]
+            }
+          },
+          "completed_units": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "unknown_type_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "request_count_complete": {
+            "type": "boolean",
+            "description": "False oznacza jawne minimum przy przerwanym transporcie lub sesji bez obserwatora. Starsze wpisy mogą nie mieć pola."
+          },
+          "responses": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "observed_at": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "http_status": {
+                  "type": "integer"
+                },
+                "content_type": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "body_complete": {
+                  "type": "boolean"
+                },
+                "body_bytes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "body_sha256": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "hash_scope": {
+                  "enum": [
+                    "decoded_body_bytes",
+                    null
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "QualityIssue": {
+        "type": "object",
+        "required": [
+          "object_id",
+          "code",
+          "severity",
+          "message",
+          "next_step"
+        ],
+        "properties": {
+          "object_id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "next_step": {
+            "type": "string"
+          }
+        }
+      },
+      "EventTimeWindow": {
+        "type": "object",
+        "required": [
+          "start_at",
+          "stop_at",
+          "valid"
+        ],
+        "properties": {
+          "start_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Czas zdarzenia w UTC. Brak offsetu operatora oznacza Europe/Warsaw; jawny offset jest respektowany. Starsza historia może zachować dawną interpretację."
+          },
+          "stop_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Czas zdarzenia w UTC. Brak offsetu operatora oznacza Europe/Warsaw; jawny offset jest respektowany. Starsza historia może zachować dawną interpretację."
+          },
+          "valid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Event": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EventMatching"
+          },
+          {
+            "type": "object",
+            "required": [
+              "event_id",
+              "object_id",
+              "source"
+            ],
+            "properties": {
+              "event_id": {
+                "type": "string"
+              },
+              "object_id": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string"
+              },
+              "source_status": {
+                "type": "string"
+              },
+              "time_phase": {
+                "enum": [
+                  "closed",
+                  "ongoing",
+                  "upcoming",
+                  "overdue",
+                  "unknown"
+                ]
+              },
+              "start_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "Czas zdarzenia w UTC. Brak offsetu operatora oznacza Europe/Warsaw; jawny offset jest respektowany. Starsza historia może zachować dawną interpretację."
+              },
+              "stop_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "Czas zdarzenia w UTC. Brak offsetu operatora oznacza Europe/Warsaw; jawny offset jest respektowany. Starsza historia może zachować dawną interpretację."
+              },
+              "source_updated_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "Czas zdarzenia w UTC. Brak offsetu operatora oznacza Europe/Warsaw; jawny offset jest respektowany. Starsza historia może zachować dawną interpretację."
+              },
+              "time_windows": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/EventTimeWindow"
+                }
+              }
+            }
+          }
+        ],
+        "description": "Zdarzenie; parametr fields może ograniczyć pola. Tożsamość event_id, object_id i source pozostaje zawsze."
+      },
+      "EventPage": {
+        "type": "object",
+        "required": [
+          "api_version",
+          "items",
+          "count",
+          "total",
+          "snapshot_id"
+        ],
+        "properties": {
+          "api_version": {
+            "const": "1"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "snapshot_id": {
+            "type": "string"
+          },
+          "publication": {
+            "type": "object",
+            "description": "Zakres źródeł i rewizja polityki publikacji."
+          }
+        }
+      },
+      "EventDetail": {
+        "type": "object",
+        "required": [
+          "api_version",
+          "item"
+        ],
+        "properties": {
+          "api_version": {
+            "const": "1"
+          },
+          "item": {
+            "$ref": "#/components/schemas/EventComplete"
+          },
+          "publication": {
+            "type": "object",
+            "description": "Zakres źródeł i rewizja polityki publikacji."
+          }
+        }
+      },
+      "HistoryItem": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Event"
+          },
+          {
+            "type": "object",
+            "required": [
+              "history_id",
+              "action",
+              "recorded_at",
+              "origin",
+              "state_revision",
+              "before",
+              "after"
+            ],
+            "properties": {
+              "history_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "action": {
+                "type": "string"
+              },
+              "recorded_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time",
+                "description": "Czas zdarzenia w UTC. Brak offsetu operatora oznacza Europe/Warsaw; jawny offset jest respektowany. Starsza historia może zachować dawną interpretację."
+              },
+              "origin": {
+                "enum": [
+                  "legacy",
+                  "baseline",
+                  "scan"
+                ]
+              },
+              "state_revision": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "before": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/Event"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "after": {
+                "$ref": "#/components/schemas/Event"
+              }
+            }
+          }
+        ]
+      },
+      "HistoryPage": {
+        "type": "object",
+        "required": [
+          "api_version",
+          "items",
+          "count",
+          "total",
+          "snapshot_id",
+          "complete"
+        ],
+        "properties": {
+          "api_version": {
+            "const": "1"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HistoryItem"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "snapshot_id": {
+            "type": "string"
+          },
+          "complete": {
+            "type": "boolean"
+          },
+          "publication": {
+            "type": "object",
+            "description": "Zakres źródeł i rewizja polityki publikacji."
+          }
+        }
+      },
+      "ApiError": {
+        "type": "object",
+        "required": [
+          "api_version",
+          "error"
+        ],
+        "properties": {
+          "api_version": {
+            "const": "1"
+          },
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          },
+          "publication": {
+            "type": "object",
+            "description": "Zakres źródeł i rewizja polityki publikacji."
+          }
+        }
+      },
+      "EventComplete": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Event"
+          },
+          {
+            "required": [
+              "event_id",
+              "object_id",
+              "source",
+              "type",
+              "source_status",
+              "time_phase",
+              "start_at",
+              "stop_at"
+            ]
+          }
+        ]
+      },
+      "SourceState": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "fresh",
+              "stale",
+              "missing"
+            ]
+          },
+          "last_success_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "publication_updated_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Czas document.lastUpdate dokumentu wyłączeń ENERGA; niezależny od pobrania. Nie jest pomiarem zasilania."
+          },
+          "publication_timestamp_field": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "document.lastUpdate",
+              null
+            ]
+          },
+          "publication_observed_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time",
+            "description": "Czas poprawnej obserwacji dokumentu; zatwierdzany z całym skanem."
+          },
+          "publication_time_status": {
+            "enum": [
+              "available",
+              "missing",
+              "invalid",
+              null
+            ]
+          },
+          "error_category": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Kategoria aktywnego błędu, np. maintenance dla prac serwisowych. Brak aktywnego błędu daje null. Pole opcjonalne; nieznane kategorie traktować jako zwykły błąd źródła."
+          }
+        },
+        "required": [
+          "source"
+        ],
+        "additionalProperties": true
+      },
+      "SourcePage": {
+        "type": "object",
+        "properties": {
+          "api_version": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SourceState"
+            }
+          },
+          "publication": {
+            "type": "object",
+            "description": "Zakres źródeł i rewizja polityki publikacji."
+          }
+        },
+        "required": [
+          "api_version",
+          "items"
+        ],
+        "additionalProperties": true
+      },
+      "LocalHealth": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "ok",
+              "ready",
+              "unavailable"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "OperationsStatus": {
+        "type": "object",
+        "required": [
+          "jobs",
+          "disk",
+          "api",
+          "notifications",
+          "backups",
+          "local_ready",
+          "sources"
+        ],
+        "properties": {
+          "jobs": {
+            "type": "object"
+          },
+          "disk": {
+            "type": "object"
+          },
+          "api": {
+            "type": "object"
+          },
+          "notifications": {
+            "type": "object"
+          },
+          "backups": {
+            "type": "object"
+          },
+          "sources": {
+            "type": "object"
+          },
+          "local_ready": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "BackupSnapshot": {
+        "type": "object",
+        "required": [
+          "snapshot_id",
+          "scope",
+          "started_at",
+          "completed_at"
+        ],
+        "properties": {
+          "snapshot_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scope": {
+            "const": "application"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeliveryHistoryItem": {
+        "type": "object",
+        "required": [
+          "job_id",
+          "change_id",
+          "source",
+          "object_id",
+          "action",
+          "status",
+          "attempts",
+          "max_attempts",
+          "created_at",
+          "last_attempt_at",
+          "next_attempt_at",
+          "delivered_at",
+          "finished_at",
+          "last_decision_at",
+          "last_http_status",
+          "last_error_code",
+          "last_decision_reason"
+        ],
+        "properties": {
+          "job_id": {
+            "type": "string"
+          },
+          "change_id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "object_id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "sending",
+              "delivered",
+              "failed",
+              "skipped"
+            ]
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "max_attempts": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "created_at": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Znacznik czasu Unix, sekundy."
+          },
+          "last_attempt_at": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Znacznik czasu Unix, sekundy."
+          },
+          "next_attempt_at": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Znacznik czasu Unix, sekundy."
+          },
+          "delivered_at": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Znacznik czasu Unix, sekundy."
+          },
+          "finished_at": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Znacznik czasu Unix, sekundy."
+          },
+          "last_decision_at": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "description": "Znacznik czasu Unix, sekundy."
+          },
+          "last_http_status": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "last_error_code": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "last_decision_reason": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeliveryHistoryPage": {
+        "type": "object",
+        "required": [
+          "total",
+          "limit",
+          "offset",
+          "items"
+        ],
+        "properties": {
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "items": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/DeliveryHistoryItem"
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "AdminSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-osd_admin",
+        "description": "Sesja ustanawiana przez POST /api/admin/login."
+      },
+      "OperationsReadToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Osobny token z PGE_OPERATIONS_TOKEN_FILE, wyłącznie odczyt stanu operacyjnego."
+      },
+      "BackupToken": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Osobny token z PGE_BACKUP_TOKEN_FILE, wyłącznie tworzenie migawki. Nie daje praw administratora."
+      }
+    }
+  }
+}

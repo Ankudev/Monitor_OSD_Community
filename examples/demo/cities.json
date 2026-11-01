@@ -1,0 +1,18 @@
+[
+  ["wroclaw", "Wrocław", "02", 51.11, 17.03],
+  ["bydgoszcz", "Bydgoszcz", "04", 53.12, 18.00],
+  ["lublin", "Lublin", "06", 51.25, 22.57],
+  ["gorzow", "Gorzów Wielkopolski", "08", 52.73, 15.24],
+  ["lodz", "Łódź", "10", 51.77, 19.46],
+  ["krakow", "Kraków", "12", 50.06, 19.94],
+  ["warszawa", "Warszawa", "14", 52.23, 21.01],
+  ["opole", "Opole", "16", 50.67, 17.92],
+  ["rzeszow", "Rzeszów", "18", 50.04, 22.00],
+  ["bialystok", "Białystok", "20", 53.13, 23.16],
+  ["gdansk", "Gdańsk", "22", 54.35, 18.65],
+  ["katowice", "Katowice", "24", 50.26, 19.02],
+  ["kielce", "Kielce", "26", 50.87, 20.63],
+  ["olsztyn", "Olsztyn", "28", 53.78, 20.48],
+  ["poznan", "Poznań", "30", 52.41, 16.93],
+  ["szczecin", "Szczecin", "32", 53.43, 14.55]
+]

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Publiczny katalog lokalizacji OSD</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17253a; background: #f5f3ee; }
+    body { width: min(1100px, calc(100% - 32px)); margin: 32px auto; }
+    h1 { margin-bottom: 6px; }
+    p { color: #5d6774; }
+    form { display: flex; gap: 8px; margin: 24px 0; }
+    input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid #c9c5bd; border-radius: 7px; }
+    button { padding: 10px 16px; color: white; background: #1769aa; border: 0; border-radius: 7px; cursor: pointer; }
+    #state { min-height: 24px; font-weight: 700; }
+    #state.error { color: #b52c25; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+    article { padding: 14px; background: white; border: 1px solid #e2ded5; border-radius: 9px; }
+    article h2 { margin: 0 0 6px; font-size: 1rem; }
+    article p { margin: 3px 0; font-size: .85rem; }
+  </style>
+</head>
+<body>
+  <h1>Publiczny katalog lokalizacji</h1>
+  <p>Jedno zapytanie pobiera wszystkie lokalizacje monitorowane przez aplikację.</p>
+  <form id="form">
+    <input id="baseUrl" aria-label="Adres aplikacji">
+    <button type="submit">Pobierz dane</button>
+  </form>
+  <div id="state" role="status">Gotowe do pobrania.</div>
+  <div id="locations" class="grid"></div>
+  <script src="/static/event-view.js?v=20261023-zrodla-2"></script>
+  <script>
+    const form = document.getElementById('form');
+    const state = document.getElementById('state');
+    const container = document.getElementById('locations');
+    document.getElementById('baseUrl').value = location.protocol === 'file:'
+      ? 'https://osd-demo.bieda.it'
+      : location.origin;
+
+    function line(text) {
+      const element = document.createElement('p');
+      element.textContent = text;
+      return element;
+    }
+
+    async function loadLocations(event) {
+      event?.preventDefault();
+      state.className = '';
+      state.textContent = 'Pobieranie…';
+      container.replaceChildren();
+      const base = document.getElementById('baseUrl').value.trim().replace(/\/$/, '');
+      try {
+        const response = await fetch(`${base}/api/v1/locations`, { credentials: 'omit' });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (!Array.isArray(payload.items)) throw new Error('Niepoprawna odpowiedź API');
+        for (const item of payload.items) {
+          const card = document.createElement('article');
+          const title = document.createElement('h2');
+          title.textContent = item.name || item.city || item.object_id;
+          card.append(title);
+          card.append(line(`${item.city}${item.street ? `, ${item.street}` : ''}`));
+          card.append(line(`SIMC ${item.city_sym || '-'} · ULIC ${item.street_sym || '-'}`));
+          card.append(line(`ID: ${item.object_id}`));
+          card.append(line(`Komunikaty trwające według harmonogramu: ${item.active_event_count}; przyszłe: ${item.upcoming_event_count}`));
+          container.append(card);
+        }
+        state.textContent = `Pobrano ${OsdEventView.count(payload.count, ["lokalizację", "lokalizacje", "lokalizacji"])}. Stan danych: ${OsdEventView.dataStatus(payload.data_status)}.`;
+      } catch (error) {
+        state.className = 'error';
+        state.textContent = `Nie udało się pobrać danych: ${error.message}`;
+      }
+    }
+
+    form.addEventListener('submit', loadLocations);
+    loadLocations();
+  </script>
+</body>
+</html>

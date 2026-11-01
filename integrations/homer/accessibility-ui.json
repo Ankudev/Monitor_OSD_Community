@@ -1,0 +1,48 @@
+{
+  "src/components/SettingToggle.vue": [
+    [
+      "  <a\n",
+      "  <button\n    type=\"button\"\n    :aria-pressed=\"value\"\n"
+    ],
+    [
+      "  </a>",
+      "  </button>"
+    ]
+  ],
+  "src/components/DarkMode.vue": [
+    [
+      "  <a\n",
+      "  <button\n    type=\"button\"\n"
+    ],
+    [
+      "  </a>",
+      "  </button>"
+    ]
+  ],
+  "src/App.vue": [
+    [
+      "    <section id=\"main-section\" class=\"section\">",
+      "    <main id=\"main-section\" class=\"section\">"
+    ],
+    [
+      "    </section>\n\n    <footer",
+      "    </main>\n\n    <footer"
+    ]
+  ],
+  "src/components/Service.vue": [
+    [
+      "import { defineAsyncComponent } from \"vue\";",
+      "import { defineAsyncComponent } from \"vue\";\nimport OsdMonitor from \"./services/OsdMonitor.vue\";"
+    ],
+    [
+      "    component() {\n",
+      "    component() {\n      if (this.item.type === \"OsdMonitor\") return OsdMonitor;\n"
+    ]
+  ],
+  "index.html": [
+    [
+      "    <title>SNUT - Monitor OSD</title>",
+      "    <meta name=\"description\" content=\"Pulpit SNUT: komunikaty operatorów sieci dystrybucyjnych, monitorowane obiekty i planowane wyłączenia.\" />\n    <title>SNUT - Monitor OSD</title>"
+    ]
+  ]
+}

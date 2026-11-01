@@ -1,0 +1,14 @@
+[
+  [
+    "    <div id=\"bighead\">\n      <section v-if=\"config.header\" class=\"first-line\">\n        <div v-cloak class=\"container\">\n          <div class=\"logo\">\n            <a href=\"#\">\n              <img v-if=\"config.logo\" :src=\"config.logo\" alt=\"Logo pulpitu\" />\n            </a>\n            <i v-if=\"config.icon\" :class=\"config.icon\"></i>\n          </div>\n          <div class=\"dashboard-title\">\n            <span class=\"headline\">{{ config.subtitle }}</span>\n            <h1>{{ config.title }}</h1>\n          </div>\n        </div>\n      </section>\n\n      <Navbar\n        :open=\"showMenu\"\n        :links=\"config.links\"\n        @navbar-toggle=\"showMenu = !showMenu\"\n      >\n        <DarkMode\n          :default-value=\"config.defaults.colorTheme\"\n          @updated=\"isDark = $event\"\n        />\n\n        <SettingToggle\n          name=\"vlayout\"\n          aria-label=\"Zmień układ pulpitu\"\n          title=\"Zmień układ pulpitu\"\n          icon=\"fa-list\"\n          icon-alt=\"fa-columns\"\n          :default-value=\"config.defaults.layout == 'columns'\"\n          @updated=\"vlayout = $event\"\n        />\n\n        <SearchInput\n          class=\"navbar-item is-inline-block-mobile\"\n          :hotkey=\"searchHotkey()\"\n          @input=\"filterServices($event)\"\n          @search-focus=\"showMenu = true\"\n          @search-open=\"navigateToFirstService\"\n          @search-cancel=\"filterServices()\"\n        />\n      </Navbar>\n    </div>\n",
+    "    <OsdHeader>\n        <DarkMode\n          :default-value=\"config.defaults.colorTheme\"\n          @updated=\"isDark = $event\"\n        />\n\n        <SettingToggle\n          name=\"vlayout\"\n          aria-label=\"Zmień układ pulpitu\"\n          title=\"Zmień układ pulpitu\"\n          icon=\"fa-list\"\n          icon-alt=\"fa-columns\"\n          :default-value=\"config.defaults.layout == 'columns'\"\n          @updated=\"vlayout = $event\"\n        />\n\n        <SearchInput\n          class=\"navbar-item is-inline-block-mobile\"\n          :hotkey=\"searchHotkey()\"\n          @input=\"filterServices($event)\"\n          @search-focus=\"showMenu = true\"\n          @search-open=\"navigateToFirstService\"\n          @search-cancel=\"filterServices()\"\n        />\n    </OsdHeader>\n"
+  ],
+  [
+    "import Navbar from \"./components/Navbar.vue\";",
+    "import OsdHeader from \"./components/OsdHeader.vue\";"
+  ],
+  [
+    "    Navbar,",
+    "    OsdHeader,"
+  ]
+]

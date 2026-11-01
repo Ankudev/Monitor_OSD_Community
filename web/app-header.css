@@ -1,0 +1,65 @@
+/* Wspólny nagłówek panelu, instrukcji i SNUT. */
+.osd-header, .osd-navigation, .osd-tools {
+  box-sizing: border-box;
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
+}
+.osd-header {
+  color: #fff;
+  background: #17243a;
+  border-bottom: 4px solid #d46c1f;
+}
+.osd-header .topbar-inner, .osd-navigation .view-navigation-inner, .osd-tools-inner {
+  box-sizing: border-box;
+  width: min(1220px, calc(100% - 36px));
+  margin-inline: auto;
+}
+.osd-header .topbar-inner { display: flex; align-items: center; gap: 14px; min-height: 78px; padding-block: 12px; }
+.osd-header .brand-mark { display: grid; flex: 0 0 47px; width: 47px; height: 47px; place-items: center; color: #fff; background: #a84b0c; border-radius: 10px; font-size: 12px; font-weight: 800; }
+.osd-header .brand-title { min-width: 0; }
+.osd-header .eyebrow { display: block; margin: 0 0 5px; color: #f3974c; font-size: .68rem; font-weight: 800; letter-spacing: .15em; }
+.osd-header h1 { margin: 0; color: #fff; font-family: Georgia, serif; font-size: clamp(1.15rem, 2.4vw, 1.6rem); font-weight: 600; line-height: 1.25; }
+.osd-header .connection { flex-shrink: 0; }
+.osd-header .header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-left: auto; flex-shrink: 0; }
+.osd-header .header-actions .connection { margin-left: 0; }
+.osd-header .header-account-button { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 13px; color: #fff; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.3); border-radius: 8px; font: 700 .8rem/1.4 Inter, "Segoe UI", Arial, sans-serif; white-space: nowrap; cursor: pointer; }
+.osd-header .header-account-button[hidden] { display: none; }
+.osd-header .header-account-button:hover { background: rgba(255,255,255,.16); border-color: #f3974c; }
+.osd-header .header-account-button:focus-visible { outline: 2px solid #f3974c; outline-offset: 3px; }
+.osd-navigation { background: #fff; border-bottom: 1px solid #dedad2; box-shadow: 0 5px 16px rgba(20,31,48,.05); }
+.osd-navigation .view-navigation-inner { display: flex; align-items: stretch; gap: 4px; overflow-x: auto; padding: 0; scrollbar-width: thin; }
+.osd-navigation .view-tab { box-sizing: border-box; display: flex; flex-shrink: 0; align-items: center; gap: 8px; min-height: 56px; padding: 0 14px; color: #697386; background: transparent; border: 0; border-bottom: 3px solid transparent; font: 700 14px/1.5 Inter, "Segoe UI", Arial, sans-serif; text-decoration: none; white-space: nowrap; }
+.osd-navigation .view-tab:hover, .osd-navigation .view-tab:focus-visible { color: #17243a; background: #f4f2ed; }
+.osd-navigation .view-tab:focus-visible { outline: 2px solid #1769aa; outline-offset: -3px; }
+.osd-navigation .view-tab.active { color: #17243a; border-bottom-color: #d46c1f; }
+.osd-navigation .tab-icon { display: grid; flex: 0 0 24px; width: 24px; height: 24px; place-items: center; color: #fff; background: #24344d; border-radius: 50%; font-size: .74rem; }
+.osd-navigation .tab-count { min-width: 24px; padding: 2px 7px; color: #17243a; background: #eceff3; border-radius: 999px; font-size: .72rem; }
+.osd-tools { background: #fff; border-bottom: 1px solid #dedad2; }
+.osd-tools-inner { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: 44px; }
+.osd-tools-label { margin-right: auto; color: #697386; font-size: .8rem; }
+.osd-tools .navbar-item { color: #697386; }
+.osd-tools button.navbar-item { min-width: 44px; min-height: 44px; border: 0; background: transparent; font: inherit; cursor: pointer; }
+.osd-tools button:focus-visible { outline: 2px solid #1769aa; outline-offset: -2px; }
+.osd-tools .search-bar { min-width: 0; }
+.osd-tools .search-bar input { width: 180px; max-width: 100%; }
+@media (max-width: 700px) {
+  .osd-header .topbar-inner, .osd-navigation .view-navigation-inner, .osd-tools-inner { width: calc(100% - 24px); }
+  .osd-header .topbar-inner { gap: 10px; }
+  .osd-header .brand-mark { flex-basis: 40px; width: 40px; height: 40px; }
+  .osd-header h1 { font-size: 1.05rem; }
+  .osd-header .eyebrow { font-size: .58rem; }
+  .osd-header .header-actions { gap: 7px; }
+  .osd-header .header-account-button { min-height: 42px; padding-inline: 9px; font-size: .75rem; }
+  .osd-header:has(.header-actions) .topbar-inner { flex-wrap: wrap; }
+  .osd-header:has(.header-actions) .brand-title { flex: 1 1 180px; }
+  .osd-header:has(.header-actions) .header-actions { width: 100%; margin-top: 2px; }
+  .osd-navigation .view-tab { padding-inline: 11px; font-size: .8rem; }
+  .osd-tools-label { font-size: .72rem; }
+  .osd-tools .search-bar { flex: 1; padding-inline: 0; }
+  .osd-tools .search-bar input { width: 100%; }
+}
+ .osd-data-attribution { max-width: 1200px; margin: 20px auto; padding: 12px 20px; font-size: 12px; line-height: 1.6; color: #637084; }
+/* Stałe oznaczenie symulacji we wszystkich widokach Community. */
+#community-demo-notice { padding: 12px 18px; background: #fff0b3; color: #362600; border-bottom: 2px solid #b86c00; font-size: 14px; line-height: 1.5; }
+.community-demo #adminLoginButton, .community-demo [data-admin-only] { display: none !important; }
+.community-demo #adminAccess, .community-demo #adminLogout { display: none !important; }

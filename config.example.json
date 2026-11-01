@@ -1,0 +1,10 @@
+{
+  "profile": "local",
+  "web_host": "127.0.0.1",
+  "web_port": 8080,
+  "enabled_sources": [],
+  "notifications_enabled": false,
+  "our_api_url": "",
+  "geoportal_enabled": false,
+  "teryt_locations": []
+}

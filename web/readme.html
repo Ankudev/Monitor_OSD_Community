@@ -1,0 +1,126 @@
+<!-- Generowane przez tools/render_readme.py; SHA-256: 4979233e8fa577c1f8ea917ef4ed3b2c58ec75e2fbe9e043964d891816e7cabb -->
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Prosta instrukcja projektu Monitor OSD i pulpitu SNUT.">
+  <title>README - Monitor OSD</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css?v=20261026-katalog-1">
+  <link rel="stylesheet" href="/static/readme.css?v=20261025-sources1">
+  <link rel="stylesheet" href="/static/app-header.css?v=20261026-katalog-1">
+  <script src="/static/app-header.js?v=20261025-uke-gps" defer></script>
+</head>
+<body>
+  <header class="topbar osd-header">
+    <div class="topbar-inner">
+      <div class="brand-mark" aria-hidden="true">OSD</div>
+      <div class="brand-title">
+        <p class="eyebrow">MONITOR ZDARZEŃ OSD</p>
+        <h1>Monitor OSD Community</h1>
+      </div>
+    </div>
+  </header>
+
+  <nav class="view-navigation osd-navigation" aria-label="Główne widoki">
+    <div class="view-navigation-inner">
+      <a class="view-tab" href="/"><span class="tab-icon" aria-hidden="true">!</span>Komunikaty bieżące</a>
+      <a class="view-tab" href="/?view=attention"><span class="tab-icon" aria-hidden="true">?</span>Wymaga uwagi</a>
+      <a class="view-tab" href="/?view=next48"><span class="tab-icon" aria-hidden="true">48</span>48 godzin</a>
+      <a class="view-tab" href="/?view=planned"><span class="tab-icon" aria-hidden="true">P</span>Planowane wyłączenia</a>
+      <a class="view-tab" href="/?view=objects"><span class="tab-icon" aria-hidden="true">O</span>Moje obiekty</a>
+      <a class="view-tab" href="/snut/"><span class="tab-icon" aria-hidden="true">S</span>SNUT</a>
+      <a class="view-tab active" href="/readme" aria-current="page"><span class="tab-icon" aria-hidden="true">R</span>README</a>
+    </div>
+  </nav>
+
+
+<main class="readme-main"><article class="readme-card"><h1>Monitor OSD Community</h1>
+<p>Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu OSD: PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.</p>
+<p><strong>Wersja <code>0.1.0-alpha</code>. Domyślny profil to demo ze zdarzeniami symulowanymi.</strong> Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.</p>
+<h2>Co można zobaczyć</h2>
+<ul>
+<li>mapę i katalog 16 przykładowych miejscowości z całej Polski;</li>
+<li>zdarzenia aktywne, planowane, zakończone i odwołane;</li>
+<li>oddzielne informacje o dopasowaniu, jego ograniczeniach i stanie terminu;</li>
+<li>historię, eksporty i publiczne API tylko do odczytu;</li>
+<li>pulpit SNUT oparty na Homerze;</li>
+<li>we własnej instalacji: chronioną edycję katalogu i decyzje publikacji poszczególnych pól.</li>
+</ul>
+<p>W demo sześć lokalizacji nie ma zdarzeń. To przykład pustego widoku, a nie informacja o rzeczywistym zasilaniu. Kody miejscowości są syntetyczne, a punkty na mapie orientacyjne. Zasady i pochodzenie danych opisuje <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/examples/demo/README.md">scenariusz demo</a>.</p>
+<h2>Szybki start</h2>
+<p>Wymagany Python 3.11–3.13. Środowisko referencyjne: Python 3.12. Zależności instalujemy w osobnym środowisku. Nie są potrzebne klucze API ani dane produkcyjne.</p>
+<p>Windows PowerShell:</p>
+<pre><code class="language-powershell">git clone https://github.com/Ankudev/Monitor_OSD_Community.git
+cd Monitor_OSD_Community
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe tools/init_demo.py
+.\.venv\Scripts\python.exe app.py
+</code></pre>
+<p>Linux:</p>
+<pre><code class="language-bash">git clone https://github.com/Ankudev/Monitor_OSD_Community.git
+cd Monitor_OSD_Community
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python tools/init_demo.py
+.venv/bin/python app.py
+</code></pre>
+<p>Otwórz <code>http://127.0.0.1:8080/</code>. Mapa, katalog i API działają bez budowania SNUT. Backend demo nie pobiera źródeł operatorów, nie geokoduje i nie wysyła powiadomień. Przeglądarka może pobierać kafelki mapy; bez ich dostępności nadal można korzystać z listy. Dostawcy map otrzymują standardowe żądania przeglądarki.</p>
+<p>Inicjalizację wykonaj raz. Kolejne uruchomienia używają tego samego katalogu; inicjalizator odmawia jego nadpisania. Nowy scenariusz przygotujesz, wskazując inny katalog:</p>
+<pre><code class="language-bash">python tools/init_demo.py --data-dir .runtime/drugie-demo
+python app.py --profile demo --data-dir .runtime/drugie-demo --port 8081
+</code></pre>
+<p>Terminy scenariusza odnawiają się przy uruchomieniu i podczas pracy demo. Historia początkowa pozostaje oznaczona jako symulacja. Zmiana profilu wymaga osobnego katalogu danych.</p>
+<h2>Profile i dane</h2>
+<table>
+<thead>
+<tr>
+<th>Profil</th>
+<th>Zastosowanie</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>demo</code></td>
+<td>Symulacja, publiczny odczyt, brak operacji administratora i wysyłki</td>
+</tr>
+<tr>
+<td><code>local</code></td>
+<td>Własny katalog i administracja; harmonogram odczytu źródeł wyłączony</td>
+</tr>
+<tr>
+<td><code>live</code></td>
+<td>Jawnie uruchomione adaptery OSD z własną konfiguracją oraz decyzjami dotyczącymi źródeł</td>
+</tr>
+</tbody>
+</table>
+<p>Profile <code>local</code> i <code>live</code> wymagają przygotowania konfiguracji według <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/docs/wlasna-instalacja.md">instrukcji własnej instalacji</a>. Sama zmiana <code>profile</code> w pliku demo nie jest migracją danych: aplikacja odrzuca przykładowe identyfikatory w profilu <code>live</code>.</p>
+<p>Nowy obiekt jest prywatny. Publiczna mapa, API, historia i eksporty wymagają zatwierdzenia pól powiązanego z ich wartościami. Edycja pola unieważnia wcześniejsze zatwierdzenie. Status weryfikacji lokalizacji i zgoda na publikację są odrębnymi informacjami.</p>
+<p>Ocena warunków wykorzystania rzeczywistych źródeł jest otwarta. Publiczna dostępność komunikatu nie zastępuje ustalenia zasad jego przechowywania i rozpowszechniania. Licencja projektu obejmuje jego kod i autorskie przykłady, nie dane operatorów.</p>
+<h2>Pulpit SNUT</h2>
+<p>Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera i zależności opisane jego lockfile.</p>
+<pre><code class="language-bash">python -m pip install -r requirements-dev.txt
+npm install --global corepack@0.34.6
+python tools/build_snut.py --release-id community-0.1.0-alpha
+</code></pre>
+<p>Po uruchomieniu aplikacji pulpit znajduje się pod <code>/snut/</code>. Gotowe paczki wydań zawierają zbudowany pulpit. Bez buildu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.</p>
+<h2>API i kontrola stanu</h2>
+<p>Dokumentacja: <code>/api/docs/</code>, specyfikacja: <code>/api/v1/openapi.json</code>. Przykładowe odczyty: <code>/api/v1/map</code>, <code>/api/v1/locations</code>, <code>/api/v1/history</code>. Paginacja używa odnośników zwracanych przez API; po zmianie migawki może być konieczne ponowienie odczytu.</p>
+<p><code>/api/community</code> wskazuje wersję i profil. Dane demo mają oznaczenie w JSON i nagłówku <code>X-OSD-Data-Mode</code>; eksport CSV zawiera dodatkowe kolumny opisujące symulację. <code>/health/live</code> sprawdza proces, a <code>/health/ready</code> gotowość magazynu i polityki. <code>/api/operations</code> wymaga osobnego tokenu.</p>
+<h2>Rozwój i testy</h2>
+<pre><code class="language-bash">python -m pip install -r requirements-dev.txt
+python -m pip check
+python tools/check_test_discovery.py
+python -B -m unittest discover -s tests
+python tools/render_readme.py --check
+python tools/check_public_release.py
+</code></pre>
+<p>Testy JavaScript: uruchom <code>node</code> dla każdego <code>tests/test_*.cjs</code>, a następnie <code>node --test integrations/homer/tests/*.test.mjs</code>. Testy korzystają z własnych katalogów tymczasowych i syntetycznych odpowiedzi. Podczas testów nie uruchamiaj prawdziwych skanów ani powiadomień.</p>
+<p>Zapraszamy do <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/https://github.com/Ankudev/Monitor_OSD_Community/issues">zgłoszeń</a> i pull requestów. Zobacz <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/CONTRIBUTING.md">zasady współpracy</a>, <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/ROADMAP.md">plan rozwoju</a> i <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/SECURITY.md">zgłaszanie podatności</a>. Opisy funkcji, interfejs i dokumentację piszemy po polsku.</p>
+<h2>Licencja</h2>
+<p>Własny kod i przykłady: <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/LICENSE">MIT</a>. Komponenty zewnętrzne zachowują własne licencje: <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/THIRD_PARTY_NOTICES.md">informacje o zależnościach</a>.</p>
+</article></main>
+</body>
+</html>

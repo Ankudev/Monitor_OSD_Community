@@ -1,0 +1,6 @@
+-c constraints-dev.txt
+-r requirements.txt
+jsonschema
+rfc3339-validator
+ruff
+markdown-it-py==4.2.0

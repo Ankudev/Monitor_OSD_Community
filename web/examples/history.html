@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pl">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Historia OSD - przykład API</title>
+<style>
+body { max-width: 1100px; margin: 24px auto; padding: 0 16px; font-family: system-ui, sans-serif; }
+label { display: grid; gap: 6px; }
+input { box-sizing: border-box; width: 100%; max-width: 100%; padding: 8px; }
+button { margin: 8px 8px 8px 0; padding: 8px 12px; }
+p, li { overflow-wrap: anywhere; }
+</style>
+<h1>Historia zapisanych zmian</h1>
+<p>Odczytujemy archiwum aplikacji. Ta strona nie wysyła zapytań do operatorów.</p>
+<p>Wpisy sprzed poprawki z 12.10.2026 mogą zawierać przesunięte godziny zdarzeń. Dawne migawki pozostają niezmienne; czas zapisania wpisu i czas zdarzenia to różne informacje.</p>
+<label>Adres API <input id="address" size="70" value="https://osd-demo.bieda.it/api/v1/history?limit=50"></label>
+<button id="first">Pierwsza strona</button><button id="next" disabled>Następna strona</button>
+<p id="status" role="status">Wybierz pierwszą stronę.</p><ol id="items"></ol>
+<script>
+let nextUrl = null;
+const address = document.getElementById('address');
+const status = document.getElementById('status');
+const nextButton = document.getElementById('next');
+const actions = {new:'Nowe dopasowanie', updated:'Zmienione dane', cancelled:'Odwołany komunikat',
+  not_published:'Operator przestał publikować komunikat', out_of_scope:'Komunikat przestał pasować', snapshot:'Zastana obserwacja'};
+function dateText(value) {
+  if (!value) return 'Brak danych';
+  const date = new Date(value);
+  return Number.isFinite(date.getTime()) ? new Intl.DateTimeFormat('pl-PL', {dateStyle:'medium', timeStyle:'short', timeZone:'Europe/Warsaw'}).format(date) : 'Nieprawidłowa data';
+}
+async function readPage(url) {
+  nextButton.disabled = true;
+  try {
+    const response = await fetch(url);
+    if (response.status === 409) {
+      nextUrl = null;
+      document.getElementById('items').replaceChildren();
+      status.textContent = 'Archiwum zmieniło się. Wybierz pierwszą stronę, aby zacząć ponownie.';
+      return;
+    }
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const data = await response.json();
+    const rows = data.items.map(item => {
+      const row = document.createElement('li');
+      row.textContent = [dateText(item.recorded_at), item.source, item.configured_name || item.city,
+                         actions[item.action] || item.action, item.description, 'ID: ' + item.history_id].filter(Boolean).join(' | ');
+      return row;
+    });
+    document.getElementById('items').replaceChildren(...rows);
+    nextUrl = data.next ? new URL(data.next, url).href : null;
+    nextButton.disabled = !nextUrl;
+    status.textContent = 'Liczba wpisów na stronie: ' + data.count + '. Łączna liczba dostępnych wpisów: ' + data.total +
+      '. Dawna historia jest niepełna. Początek archiwum: ' + dateText(data.archive_started_at) + '.';
+  } catch (error) {
+    nextUrl = null;
+    status.textContent = 'Nie udało się odczytać historii: ' + error.message;
+  }
+}
+document.getElementById('first').onclick = () => readPage(address.value);
+nextButton.onclick = () => nextUrl && readPage(nextUrl);
+</script>
+</html>

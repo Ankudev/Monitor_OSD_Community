@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Mapa komunikatów o awariach i planowanych wyłączeniach pięciu OSD.">
+  <title>Monitor OSD. Mapa komunikatów</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/vendor/leaflet/leaflet.css?v=1.9.4-20260915">
+  <link rel="stylesheet" href="/static/style.css?v=20261026-katalog-1">
+  <link rel="stylesheet" href="/static/app-header.css?v=20261026-katalog-1">
+  <script src="/static/app-header.js?v=20261025-uke-gps" defer></script>
+  <script src="/static/vendor/leaflet/leaflet.js?v=1.9.4-20260915" defer></script>
+  <script src="/static/event-view.js?v=20261023-zrodla-2" defer></script>
+  <script src="/static/match-explanation.js?v=20261020-polish-1" defer></script>
+  <script src="/static/script.js?v=20261026-katalog-1" defer></script>
+  <script src="/static/diagnostics.js?v=20261023-zrodla-2" defer></script>
+  <script src="/static/delivery-history.js?v=20261023-stabilizacja-2" defer></script>
+</head>
+<body>
+  <header class="topbar osd-header">
+    <div class="topbar-inner">
+      <div class="brand-mark" aria-hidden="true">OSD</div>
+      <div class="brand-title">
+        <p class="eyebrow">MONITOR ZDARZEŃ OSD</p>
+        <h1>Monitor OSD Community</h1>
+      </div>
+      <div class="header-actions">
+        <div class="connection" id="connectionState" role="status">
+          <span class="connection-dot" aria-hidden="true"></span>
+          <span>Łączenie…</span>
+        </div>
+        <button class="header-account-button" id="adminAccess" type="button" aria-haspopup="dialog" aria-controls="adminDialog">Zaloguj się</button>
+        <button class="header-account-button" id="adminLogout" type="button" hidden>Wyloguj</button>
+      </div>
+    </div>
+  </header>
+
+  <nav class="view-navigation osd-navigation" aria-label="Główne widoki">
+    <div class="view-navigation-inner">
+      <button class="view-tab active" data-view="current" type="button" aria-current="page"><span class="tab-icon" aria-hidden="true">!</span>Komunikaty bieżące</button>
+      <button class="view-tab" data-view="attention" type="button"><span class="tab-icon" aria-hidden="true">?</span>Wymaga uwagi</button>
+      <button class="view-tab" data-view="next48" type="button"><span class="tab-icon" aria-hidden="true">48</span>48 godzin</button>
+      <button class="view-tab" data-view="planned" type="button"><span class="tab-icon" aria-hidden="true">P</span>Planowane wyłączenia</button>
+      <button class="view-tab" data-view="objects" type="button"><span class="tab-icon" aria-hidden="true">O</span>Moje obiekty <span class="tab-count" id="navObjectCount">0</span></button>
+      <a class="view-tab snut-link" href="/snut/"><span class="tab-icon" aria-hidden="true">S</span>SNUT</a>
+      <a class="view-tab snut-link" href="/readme"><span class="tab-icon" aria-hidden="true">R</span>README</a>
+    </div>
+  </nav>
+
+  <dialog id="adminDialog" class="admin-dialog" aria-labelledby="adminDialogTitle" aria-describedby="adminDialogDescription">
+    <div class="admin-dialog-heading">
+      <div><p class="eyebrow">ADMINISTRATOR</p><h2 id="adminDialogTitle">Logowanie do edycji</h2></div>
+      <button class="dialog-close" id="adminDialogClose" type="button" aria-label="Zamknij logowanie">×</button>
+    </div>
+    <p id="adminDialogDescription">Przeglądanie publicznego katalogu nie wymaga konta. Zaloguj się, aby zarządzać lokalizacjami.</p>
+    <form id="adminLogin" class="admin-login-form">
+      <input type="hidden" name="username" autocomplete="username" value="administrator">
+      <label for="adminPassword">Hasło administratora</label>
+      <input id="adminPassword" type="password" autocomplete="current-password" minlength="15" maxlength="128" required>
+      <button class="primary-button" id="adminLoginSubmit" type="submit">Zaloguj się do edycji</button>
+      <p class="form-message" id="adminMessage" role="status" aria-live="polite">Wpisz hasło administratora.</p>
+    </form>
+  </dialog>
+
+  <main id="mainContent" aria-busy="true">
+    <section class="page-heading">
+      <div>
+        <p class="eyebrow" id="viewEyebrow">AKTUALNA SYTUACJA</p>
+        <h2 id="viewTitle">Aktualne komunikaty operatorów</h2>
+        <p id="viewDescription">Mapa pokazuje zapisane obiekty i dopasowane do nich komunikaty. Dopasowanie nie zawsze potwierdza objęcie punktu wyłączeniem.</p>
+      </div>
+      <div class="refresh-box">
+        <span>Ostatni poprawny odczyt</span>
+        <strong id="lastUpdate">Jeszcze nie wykonano</strong>
+        <div class="scan-clock">
+          <span id="nextScanLabel">Następny pełny skan</span>
+          <strong id="nextScanTime">Sprawdzanie terminu…</strong>
+          <small id="nextScanCountdown"></small>
+        </div>
+        <small id="nextRefresh">Odświeżenie panelu za 30 s</small>
+      </div>
+    </section>
+
+    <p id="initialLoading" class="initial-loading" role="status">Wczytywanie zapisanych danych…</p>
+    <div id="monitoringOverview">
+    <p id="notificationStatus" class="muted" role="status"></p>
+    <details id="deliveryHistory" class="full-data" hidden>
+      <summary>Historia powiadomień</summary>
+      <p><a href="/api/admin/push/setup">Alarmy push na tym urządzeniu</a></p>
+      <p>HTTP 2xx oznacza przyjęcie przez system odbiorcy. Nie potwierdza odczytania wiadomości przez człowieka.</p>
+      <p id="deliveryHistoryStatus" role="status"></p><div id="deliveryHistoryOutput"></div>
+      <button type="button" id="deliveryHistoryPrevious" disabled>Poprzednie dostawy</button>
+      <button type="button" id="deliveryHistoryNext" disabled>Następne dostawy</button>
+      <button type="button" id="deliveryHistoryReload">Odśwież historię</button>
+    </details>
+    <section class="source-health" id="sourceHealth" aria-label="Stan źródeł OSD"></section>
+    <p class="muted">Operatorzy przyłączeń obiektów nie zostali potwierdzeni w katalogu. Brak komunikatu nie potwierdza stanu zasilania.</p>
+    <details id="diagnosticsPanel" class="full-data">
+      <summary>Diagnostyka odczytów i jakość lokalizacji</summary>
+      <button type="button" id="diagnosticsReload">Odśwież zapisany raport</button>
+      <p><a href="/api/v1/diagnostics/scans" target="_blank" rel="noopener">Rejestr prób w API</a> · <a href="/api/v1/diagnostics/quality" target="_blank" rel="noopener">Raport jakości w API</a></p>
+      <div id="diagnosticsOutput" aria-live="polite"></div>
+    </details>
+
+    </div>
+
+    <section class="alert-banner hidden" id="errorBanner" role="alert">
+      <strong id="errorTitle">Dane wymagają uwagi.</strong>
+      <span id="errorText"></span>
+    </section>
+
+    <div id="outagesView">
+      <section class="date-strip hidden" id="dateStrip" aria-label="Wybór dnia planowanych wyłączeń"></section>
+
+      <section class="map-card">
+        <div class="map-search">
+          <label>
+            <span>Miejscowość, ulica, opis lub TERYT</span>
+            <input id="eventSearch" type="search" placeholder="Wpisz nazwę, ulicę, opis albo kod TERYT">
+          </label>
+          <button id="clearEventSearch" class="secondary-button" type="button">Wyczyść</button>
+          <label><span>Objęcie punktu</span><select id="matchScope"><option value="all">Wszystkie komunikaty</option><option value="confirmed">Potwierdzone objęcie punktu</option><option value="candidate">Do sprawdzenia</option></select></label>
+          <label class="map-layer-toggle"><input id="showOperatorPoints" type="checkbox"><span>Pokaż punkty i obszary operatorów</span></label>
+          <small id="operatorOverlayStatus" role="status" hidden></small>
+          <div class="map-result-count"><strong id="mapResultCount">0</strong><span id="mapResultLabel">przypisań w widoku</span></div>
+        </div>
+
+        <div class="map-wrap">
+          <div id="map" aria-label="Mapa obiektów oraz zdarzeń operatorów OSD"></div>
+          <aside class="map-legend" aria-label="Legenda mapy">
+            <strong>Legenda</strong>
+            <span><i class="legend-dot emergency"></i> Komunikat o awarii</span>
+            <span><i class="legend-dot planned"></i> Planowane wyłączenie</span>
+            <span><i class="legend-dot mass"></i> Awaria masowa</span>
+            <span><i class="legend-dot cancelled"></i> Odwołane</span>
+            <span><i class="legend-dot object"></i> Monitorowany obiekt</span>
+            <span><i class="legend-dot uncertain"></i> Przerywany obrys: objęcie punktu niepotwierdzone</span>
+          </aside>
+          <div class="map-pick-note hidden" id="mapPickNote">Kliknij mapę, aby wskazać położenie nowego obiektu.</div>
+        </div>
+      </section>
+
+      <section class="summary-grid" aria-label="Podsumowanie zdarzeń">
+        <article class="summary-card summary-all"><span>Widoczne zdarzenia</span><strong id="countAll">0</strong></article>
+        <article class="summary-card summary-failure"><span>Awarie - potwierdzone objęcie punktu</span><strong id="countOutage">0</strong></article>
+        <article class="summary-card summary-planned"><span>Planowane wyłączenia - potwierdzone objęcie punktu</span><strong id="countPlanned">0</strong></article>
+        <article class="summary-card summary-mass"><span>Awarie masowe - potwierdzone objęcie punktu</span><strong id="countMass">0</strong></article>
+        <article class="summary-card"><span>Niepotwierdzone objęcie punktu</span><strong id="countCandidates">0</strong></article>
+        <article class="summary-card summary-cancelled"><span>Wymaga uwagi</span><strong id="countAttention">0</strong></article>
+      </section>
+
+      <section class="events-section" aria-labelledby="eventsTitle">
+        <div class="section-heading">
+          <div><p class="eyebrow">SZCZEGÓŁY</p><h2 id="eventsTitle">Lista zdarzeń</h2></div>
+          <span id="visibleCount">0 wyników</span>
+        </div>
+        <div class="loading" id="loadingState"><span class="spinner" aria-hidden="true"></span><p>Pobieranie aktualnych informacji…</p></div>
+        <div class="empty hidden" id="emptyState"><div class="empty-icon" aria-hidden="true">—</div><h3>Brak komunikatów w tym widoku</h3><p>Dla zapisanych obiektów nie ma informacji pasujących do wybranego widoku. Nie potwierdza to stanu zasilania obiektów.</p></div>
+        <div id="eventsList" class="events-list" aria-live="polite"></div>
+      </section>
+    </div>
+
+    <section id="objectsView" class="objects-view hidden">
+      <div class="objects-layout">
+        <form class="object-form hidden" id="objectForm">
+          <p class="eyebrow" id="objectFormEyebrow">NOWA LOKALIZACJA</p>
+          <h3 id="objectFormTitle">Dodaj obiekt do monitorowania</h3>
+          <label for="locationQuery"><span>Adres, GPS lub odnośnik do Google Maps</span></label>
+          <div class="location-search-box">
+            <input id="locationQuery" type="text" autocomplete="off" placeholder="np. Klonowa 14 Olsztyn, 53.778, 20.480 albo pełny odnośnik do Google Maps ze współrzędnymi">
+            <button id="resolveLocation" class="primary-button" type="button">Szukaj</button>
+          </div>
+          <p class="field-help">Możesz też kliknąć wybrane miejsce na mapie poniżej. Skrócone odnośniki do Google Maps wymagające przekierowania nie są obsługiwane.</p>
+          <div id="locationMap" aria-label="Mapa wyboru nowej lokalizacji"></div>
+          <div class="location-result hidden" id="locationResult">
+            <span>ROZPOZNANA LOKALIZACJA</span>
+            <strong id="resolvedLocationName">-</strong>
+            <small id="resolvedLocationCodes">-</small>
+          </div>
+          <label><span>Nazwa obiektu</span><input id="objectName" name="name" type="text" placeholder="np. Nadajnik Olsztyn"></label>
+          <label><span>Słowo kluczowe - opcjonalnie</span><input id="objectKeyword" name="keyword" type="text" placeholder="np. Klonowa"></label>
+          <details class="manual-location">
+            <summary>Popraw TERYT lub ulicę ręcznie</summary>
+            <label class="autocomplete-field">
+              <span>Miejscowość w rejestrze TERYT *</span>
+              <input id="terytSearch" type="search" autocomplete="off" placeholder="Wpisz miejscowość lub kod TERYT" required>
+              <input id="selectedCitySym" name="city_sym" type="hidden">
+              <div class="suggestions hidden" id="terytSuggestions"></div>
+            </label>
+            <label class="autocomplete-field">
+              <span>Ulica - opcjonalnie</span>
+              <input id="streetSearch" type="search" autocomplete="off" placeholder="Najpierw wybierz miejscowość" disabled>
+              <input id="selectedStreetSym" name="street_sym" type="hidden">
+              <div class="suggestions hidden" id="streetSuggestions"></div>
+            </label>
+          </details>
+          <label>
+            <span>Numer domu - opcjonalnie</span>
+            <input id="objectHouseNumber" name="house_number" type="text" maxlength="32" placeholder="Np. 12, 12A lub 12/3">
+            <small>Wpisz rzeczywisty adres obiektu. Zapis numeru nie potwierdza adresu ani zasilania.</small>
+          </label>
+          <div class="coordinate-box">
+            <div><span>Położenie na mapie</span><strong id="coordinateText">Nie wskazano</strong></div>
+            <button id="clearLocation" class="secondary-button" type="button">Wyczyść</button>
+            <input id="objectLatitude" name="latitude" type="hidden">
+            <input id="objectLongitude" name="longitude" type="hidden">
+          </div>
+          <fieldset class="power-supply-fields">
+            <legend>Zasilanie rezerwowe</legend>
+            <label><span>Agregat prądotwórczy</span><select id="objectGenerator">
+              <option value="unknown">Nie uzupełniono</option><option value="none">Brak agregatu</option>
+              <option value="manual">Agregat uruchamiany ręcznie</option><option value="szr">Agregat z układem SZR</option>
+            </select></label>
+            <label><span>Dodatkowy tor zasilania</span><select id="objectSecondaryFeed">
+              <option value="unknown">Nie uzupełniono</option><option value="none">Brak dodatkowego toru</option>
+              <option value="manual">Tor przełączany ręcznie</option><option value="szr">Tor z układem SZR</option>
+            </select></label>
+            <label><span>Uwagi eksploatacyjne</span><textarea id="objectPowerNotes" maxlength="1000" rows="3" placeholder="Np. sprawdzić paliwo; agregat uruchamiamy na miejscu"></textarea></label>
+            <small>SZR oznacza samoczynne załączanie rezerwy. To informacja o wyposażeniu, a nie o jego aktualnym działaniu.</small>
+          </fieldset>
+          <div class="form-actions">
+            <button class="primary-button" id="saveObject" type="submit">Dodaj obiekt</button>
+            <button class="secondary-button hidden" id="cancelObjectEdit" type="button">Anuluj edycję</button>
+          </div>
+          <p class="form-message" id="formMessage" aria-live="polite"></p>
+        </form>
+
+        <div class="objects-panel">
+          <div class="objects-panel-heading">
+            <div><p class="eyebrow" id="catalogMode">KATALOG PUBLICZNY</p><h3>Lista obiektów <span class="catalog-count" id="catalogCount"></span></h3></div>
+            <label class="object-search"><span class="visually-hidden">Szukaj na liście obiektów</span><input id="objectSearch" type="search" placeholder="Szukaj obiektu…"></label>
+          </div>
+          <div id="catalogAdminActions" hidden>
+            <p><a href="/api/admin/publication/setup">Pochodzenie i publikacja danych</a></p>
+            <p class="objects-note">Po usunięciu obiektu aplikacja przestaje dopasowywać do niego zdarzenia podczas następnego skanu OSD.</p>
+          </div>
+          <div class="object-list" id="objectList"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>Monitor OSD - prywatna aplikacja</span><span>Dane publiczne: PGE, TAURON, ENERGA, ENEA, Stoen | Mapa: OpenStreetMap</span></footer>
+</body>
+</html>
