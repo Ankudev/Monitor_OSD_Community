@@ -1,23 +1,23 @@
 # Monitor OSD Community
 
-Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu OSD: PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.
+Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD): PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.
 
-**Wersja `0.1.0-alpha`. Domyślny profil to demo ze zdarzeniami symulowanymi.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.
+**Wersja `0.1.1-alpha`. Domyślny profil to demo ze zdarzeniami symulowanymi.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.
 
 ## Co można zobaczyć
 
-- mapę i katalog 16 przykładowych miejscowości z całej Polski;
-- zdarzenia aktywne, planowane, zakończone i odwołane;
-- oddzielne informacje o dopasowaniu, jego ograniczeniach i stanie terminu;
-- historię, eksporty i publiczne API tylko do odczytu;
-- pulpit SNUT oparty na Homerze;
-- we własnej instalacji: chronioną edycję katalogu i decyzje publikacji poszczególnych pól.
+1. mapę i katalog 16 przykładowych miejscowości z całej Polski;
+2. zdarzenia aktywne, planowane, zakończone i odwołane;
+3. oddzielne informacje o dopasowaniu, jego ograniczeniach i stanie terminu;
+4. historię, eksporty i publiczne API tylko do odczytu;
+5. pulpit SNUT oparty na Homerze;
+6. we własnej instalacji: chronioną edycję katalogu i decyzje publikacji poszczególnych pól.
 
 W demo sześć lokalizacji nie ma zdarzeń. To przykład pustego widoku, a nie informacja o rzeczywistym zasilaniu. Kody miejscowości są syntetyczne, a punkty na mapie orientacyjne. Zasady i pochodzenie danych opisuje [scenariusz demo](examples/demo/README.md).
 
 ## Szybki start
 
-Wymagany Python 3.11–3.13. Środowisko referencyjne: Python 3.12. Zależności instalujemy w osobnym środowisku. Nie są potrzebne klucze API ani dane produkcyjne.
+Wymagany Python w wersji od 3.11 do 3.13. Środowisko referencyjne: Python 3.12. Zależności instalujemy w osobnym środowisku. Nie są potrzebne klucze API ani dane produkcyjne.
 
 Windows PowerShell:
 
@@ -41,7 +41,7 @@ python3 -m venv .venv
 .venv/bin/python app.py
 ```
 
-Otwórz `http://127.0.0.1:8080/`. Mapa, katalog i API działają bez budowania SNUT. Backend demo nie pobiera źródeł operatorów, nie geokoduje i nie wysyła powiadomień. Przeglądarka może pobierać kafelki mapy; bez ich dostępności nadal można korzystać z listy. Dostawcy map otrzymują standardowe żądania przeglądarki.
+Otwórz `http://127.0.0.1:8080/`. Mapa, katalog i API działają bez budowania SNUT. Część serwerowa demo nie pobiera źródeł operatorów, nie geokoduje i nie wysyła powiadomień. Przeglądarka może pobierać kafelki mapy; bez ich dostępności nadal można korzystać z listy. Dostawcy map otrzymują standardowe żądania przeglądarki.
 
 Inicjalizację wykonaj raz. Kolejne uruchomienia używają tego samego katalogu; inicjalizator odmawia jego nadpisania. Nowy scenariusz przygotujesz, wskazując inny katalog:
 
@@ -68,21 +68,25 @@ Ocena warunków wykorzystania rzeczywistych źródeł jest otwarta. Publiczna do
 
 ## Pulpit SNUT
 
-Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera i zależności opisane jego lockfile.
+Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera i zależności przypięte w pliku blokady wersji (lockfile).
 
 ```bash
 python -m pip install -r requirements-dev.txt
 npm install --global corepack@0.34.6
-python tools/build_snut.py --release-id community-0.1.0-alpha
+python tools/build_snut.py --release-id community-0.1.1-alpha
 ```
 
-Po uruchomieniu aplikacji pulpit znajduje się pod `/snut/`. Gotowe paczki wydań zawierają zbudowany pulpit. Bez buildu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.
+Po uruchomieniu aplikacji pulpit znajduje się pod `/snut/`. Gotowe paczki wydań zawierają zbudowany pulpit. Bez zbudowanego pulpitu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.
+
+## Instalacja z paczki wydania
+
+Pobierz archiwum `.tgz` z zakładki Releases repozytorium i porównaj jego SHA-256 z sumą podaną przy załączniku. Rozpakuj je do pustego katalogu. W tym katalogu utwórz środowisko Python, zainstaluj `requirements.txt`, uruchom `tools/init_demo.py`, a następnie `app.py`, używając poleceń z szybkiego startu. Pomiń klonowanie repozytorium. Paczka zawiera gotowy katalog `snut/`, który aplikacja wybiera automatycznie.
 
 ## API i kontrola stanu
 
-Dokumentacja: `/api/docs/`, specyfikacja: `/api/v1/openapi.json`. Przykładowe odczyty: `/api/v1/map`, `/api/v1/locations`, `/api/v1/history`. Paginacja używa odnośników zwracanych przez API; po zmianie migawki może być konieczne ponowienie odczytu.
+Dokumentacja: `/api-docs/`, specyfikacja: `/api/v1/openapi.json`. Przykładowe odczyty: `/api/v1/map`, `/api/v1/locations`, `/api/v1/history`. Paginacja używa odnośników zwracanych przez API; po zmianie migawki może być konieczne ponowienie odczytu.
 
-`/api/community` wskazuje wersję i profil. Dane demo mają oznaczenie w JSON i nagłówku `X-OSD-Data-Mode`; eksport CSV zawiera dodatkowe kolumny opisujące symulację. `/health/live` sprawdza proces, a `/health/ready` gotowość magazynu i polityki. `/api/operations` wymaga osobnego tokenu.
+`/api/community` wskazuje wersję i profil. Dane demo mają oznaczenie w JSON (w OpenAPI jako rozszerzenia `x-osd-demo` i `x-osd-notice`) oraz nagłówku `X-OSD-Data-Mode`; eksport CSV zawiera dodatkowe kolumny opisujące symulację. `/health/live` sprawdza proces, a `/health/ready` gotowość magazynu i polityki. `/api/operations` wymaga osobnego tokenu.
 
 ## Rozwój i testy
 

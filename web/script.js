@@ -822,6 +822,8 @@ function renderObjects() {
     );
     favoriteButton.type = "button";
     favoriteButton.title = favoriteIds.includes(String(object.id)) ? "Usuń z ulubionych" : "Dodaj do ulubionych";
+    favoriteButton.setAttribute("aria-label", `${favoriteButton.title}: ${object.name || object.city}`);
+    favoriteButton.setAttribute("aria-pressed", String(favoriteIds.includes(String(object.id))));
     favoriteButton.dataset.objectId = object.id;
     actions.append(favoriteButton);
     const directionsUrl = googleMapsDirectionsUrl(object);
@@ -952,7 +954,7 @@ function renderSourceHealth(status) {
     chip.append(createElement("strong", "", health.label || source.toUpperCase()));
     if (status.demo) {
       chip.title = "Przykład formatu operatora w scenariuszu demonstracyjnym.";
-      chip.append(createElement("span", "", "Dane scenariusza — bez odczytu operatora"));
+      chip.append(createElement("span", "", "Dane scenariusza. Bez odczytu operatora."));
       container.append(chip);
       continue;
     }
@@ -1055,6 +1057,7 @@ function applyMapPayload(payload) {
   ]));
   const dataStatus = describeDataStatus(payload);
   statusPayload = {
+    demo: payload.demo === true,
     ok: payload.data_status === "fresh",
     last_success_at: payload.data_updated_at,
     error: dataStatus.message,

@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 import publication_policy as publication
 from community import NOTICE
+from matching_evidence import matching_evidence
+from matching_explanation import explain
 
 SOURCE = 'https://github.com/Ankudev/Monitor_OSD_Community/tree/main/examples/demo'
 
@@ -75,15 +77,21 @@ async def refresh(root, now=None, application=None):
         stop = start + timedelta(hours=3)
         key = f'{source}:demo-{i}:object:{obj["id"]}'
         events[key] = {'event_key': key, 'source': source, 'operator': app.SOURCE_LABELS[source],
-                           'source_event_id': f'demo-{i}', 'object_id': obj['id'], 'type': 'planned' if phase in (1, 3) else 'unplanned',
-                           'status': 'cancelled' if phase == 3 else 'active', 'revoked': phase == 3,
+                           'source_event_id': f'demo-{i}', 'object_id': obj['id'], 'type': 'planned_outage' if phase in (1, 3) else 'outage',
+                           'status': 'cancelled' if phase == 3 else 'resolved' if phase == 2 else 'active', 'revoked': phase == 3,
                            'city_sym': obj['city_sym'], 'city': obj['name'].split(' — ')[0], 'configured_name': obj['name'],
                            'street_sym': '', 'object_latitude': obj['latitude'], 'object_longitude': obj['longitude'],
-                           'object_house_number': None, 'location_review_required': True, 'match_confidence': 'city_text',
-                           'matched_locations': [], 'match_evidence': {'scope': 'candidate', 'point_confirmed': False},
+                           'object_house_number': None, 'location_review_required': True, 'match_confidence': 'text_address',
+                           'matched_locations': [],
                            'description': f'SYMULACJA: {labels[phase]}. {NOTICE}',
                            'start_at': start.isoformat(), 'stop_at': stop.isoformat(), 'periods': [], 'coordinates': [],
                            'source_url': SOURCE, 'demo': True}
+        decision = {'method': 'text_address', 'details': {'street_compared': False,
+                    'address': {'result': 'unknown', 'reason': 'Syntetyczny przykład miejscowości.'}},
+                    'limitations': ['locality_only']}
+        evidence = matching_evidence(events[key], obj, 'text_address', decision)
+        events[key]['match_evidence'] = evidence
+        events[key]['match_explanation'] = explain(decision, evidence, 'community-demo-1')
     store = application[app.ENGINE_STORE_KEY] if application is not None else EngineStore(root/'data/engine.sqlite3', root/'state.json')
     try:
         previous = application[app.STATE_KEY] if application is not None else store.load_or_migrate(app.empty_state)[0]

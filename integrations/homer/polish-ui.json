@@ -1,7 +1,7 @@
 {
   "index.html": [
     ["<html>", "<html lang=\"pl\">"],
-    ["<title>Homer</title>", "<title>SNUT - Monitor OSD</title>"]
+    ["<title>Homer</title>", "<title>SNUT. Monitor OSD Community</title>"]
   ],
   "src/assets/defaults.yml": [
     ["title: \"Dashboard\"", "title: \"Pulpit SNUT\""],

@@ -1,11 +1,11 @@
-<!-- Generowane przez tools/render_readme.py; SHA-256: 4979233e8fa577c1f8ea917ef4ed3b2c58ec75e2fbe9e043964d891816e7cabb -->
+<!-- Generowane przez tools/render_readme.py; SHA-256: c45b11a2e35e436da947e8da8c5b6671149ff753db551742aebf0219463cc6b5 -->
 <!doctype html>
 <html lang="pl">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Prosta instrukcja projektu Monitor OSD i pulpitu SNUT.">
-  <title>README - Monitor OSD</title>
+  <meta name="description" content="Instrukcja Monitor OSD Community: demonstracja, instalacja, API i pulpit SNUT.">
+  <title>README. Monitor OSD Community</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="/static/style.css?v=community-0-1-alpha">
   <link rel="stylesheet" href="/static/readme.css?v=community-0-1-alpha">
@@ -37,20 +37,20 @@
 
 
 <main class="readme-main"><article class="readme-card"><h1>Monitor OSD Community</h1>
-<p>Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu OSD: PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.</p>
-<p><strong>Wersja <code>0.1.0-alpha</code>. Domyślny profil to demo ze zdarzeniami symulowanymi.</strong> Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.</p>
+<p>Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD): PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.</p>
+<p><strong>Wersja <code>0.1.1-alpha</code>. Domyślny profil to demo ze zdarzeniami symulowanymi.</strong> Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.</p>
 <h2>Co można zobaczyć</h2>
-<ul>
+<ol>
 <li>mapę i katalog 16 przykładowych miejscowości z całej Polski;</li>
 <li>zdarzenia aktywne, planowane, zakończone i odwołane;</li>
 <li>oddzielne informacje o dopasowaniu, jego ograniczeniach i stanie terminu;</li>
 <li>historię, eksporty i publiczne API tylko do odczytu;</li>
 <li>pulpit SNUT oparty na Homerze;</li>
 <li>we własnej instalacji: chronioną edycję katalogu i decyzje publikacji poszczególnych pól.</li>
-</ul>
+</ol>
 <p>W demo sześć lokalizacji nie ma zdarzeń. To przykład pustego widoku, a nie informacja o rzeczywistym zasilaniu. Kody miejscowości są syntetyczne, a punkty na mapie orientacyjne. Zasady i pochodzenie danych opisuje <a href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/examples/demo/README.md">scenariusz demo</a>.</p>
 <h2>Szybki start</h2>
-<p>Wymagany Python 3.11–3.13. Środowisko referencyjne: Python 3.12. Zależności instalujemy w osobnym środowisku. Nie są potrzebne klucze API ani dane produkcyjne.</p>
+<p>Wymagany Python w wersji od 3.11 do 3.13. Środowisko referencyjne: Python 3.12. Zależności instalujemy w osobnym środowisku. Nie są potrzebne klucze API ani dane produkcyjne.</p>
 <p>Windows PowerShell:</p>
 <pre><code class="language-powershell">git clone https://github.com/Ankudev/Monitor_OSD_Community.git
 cd Monitor_OSD_Community
@@ -67,7 +67,7 @@ python3 -m venv .venv
 .venv/bin/python tools/init_demo.py
 .venv/bin/python app.py
 </code></pre>
-<p>Otwórz <code>http://127.0.0.1:8080/</code>. Mapa, katalog i API działają bez budowania SNUT. Backend demo nie pobiera źródeł operatorów, nie geokoduje i nie wysyła powiadomień. Przeglądarka może pobierać kafelki mapy; bez ich dostępności nadal można korzystać z listy. Dostawcy map otrzymują standardowe żądania przeglądarki.</p>
+<p>Otwórz <code>http://127.0.0.1:8080/</code>. Mapa, katalog i API działają bez budowania SNUT. Część serwerowa demo nie pobiera źródeł operatorów, nie geokoduje i nie wysyła powiadomień. Przeglądarka może pobierać kafelki mapy; bez ich dostępności nadal można korzystać z listy. Dostawcy map otrzymują standardowe żądania przeglądarki.</p>
 <p>Inicjalizację wykonaj raz. Kolejne uruchomienia używają tego samego katalogu; inicjalizator odmawia jego nadpisania. Nowy scenariusz przygotujesz, wskazując inny katalog:</p>
 <pre><code class="language-bash">python tools/init_demo.py --data-dir .runtime/drugie-demo
 python app.py --profile demo --data-dir .runtime/drugie-demo --port 8081
@@ -100,15 +100,17 @@ python app.py --profile demo --data-dir .runtime/drugie-demo --port 8081
 <p>Nowy obiekt jest prywatny. Publiczna mapa, API, historia i eksporty wymagają zatwierdzenia pól powiązanego z ich wartościami. Edycja pola unieważnia wcześniejsze zatwierdzenie. Status weryfikacji lokalizacji i zgoda na publikację są odrębnymi informacjami.</p>
 <p>Ocena warunków wykorzystania rzeczywistych źródeł jest otwarta. Publiczna dostępność komunikatu nie zastępuje ustalenia zasad jego przechowywania i rozpowszechniania. Licencja projektu obejmuje jego kod i autorskie przykłady, nie dane operatorów.</p>
 <h2>Pulpit SNUT</h2>
-<p>Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera i zależności opisane jego lockfile.</p>
+<p>Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera i zależności przypięte w pliku blokady wersji (lockfile).</p>
 <pre><code class="language-bash">python -m pip install -r requirements-dev.txt
 npm install --global corepack@0.34.6
-python tools/build_snut.py --release-id community-0.1.0-alpha
+python tools/build_snut.py --release-id community-0.1.1-alpha
 </code></pre>
-<p>Po uruchomieniu aplikacji pulpit znajduje się pod <code>/snut/</code>. Gotowe paczki wydań zawierają zbudowany pulpit. Bez buildu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.</p>
+<p>Po uruchomieniu aplikacji pulpit znajduje się pod <code>/snut/</code>. Gotowe paczki wydań zawierają zbudowany pulpit. Bez zbudowanego pulpitu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.</p>
+<h2>Instalacja z paczki wydania</h2>
+<p>Pobierz archiwum <code>.tgz</code> z zakładki Releases repozytorium i porównaj jego SHA-256 z sumą podaną przy załączniku. Rozpakuj je do pustego katalogu. W tym katalogu utwórz środowisko Python, zainstaluj <code>requirements.txt</code>, uruchom <code>tools/init_demo.py</code>, a następnie <code>app.py</code>, używając poleceń z szybkiego startu. Pomiń klonowanie repozytorium. Paczka zawiera gotowy katalog <code>snut/</code>, który aplikacja wybiera automatycznie.</p>
 <h2>API i kontrola stanu</h2>
-<p>Dokumentacja: <code>/api/docs/</code>, specyfikacja: <code>/api/v1/openapi.json</code>. Przykładowe odczyty: <code>/api/v1/map</code>, <code>/api/v1/locations</code>, <code>/api/v1/history</code>. Paginacja używa odnośników zwracanych przez API; po zmianie migawki może być konieczne ponowienie odczytu.</p>
-<p><code>/api/community</code> wskazuje wersję i profil. Dane demo mają oznaczenie w JSON i nagłówku <code>X-OSD-Data-Mode</code>; eksport CSV zawiera dodatkowe kolumny opisujące symulację. <code>/health/live</code> sprawdza proces, a <code>/health/ready</code> gotowość magazynu i polityki. <code>/api/operations</code> wymaga osobnego tokenu.</p>
+<p>Dokumentacja: <code>/api-docs/</code>, specyfikacja: <code>/api/v1/openapi.json</code>. Przykładowe odczyty: <code>/api/v1/map</code>, <code>/api/v1/locations</code>, <code>/api/v1/history</code>. Paginacja używa odnośników zwracanych przez API; po zmianie migawki może być konieczne ponowienie odczytu.</p>
+<p><code>/api/community</code> wskazuje wersję i profil. Dane demo mają oznaczenie w JSON (w OpenAPI jako rozszerzenia <code>x-osd-demo</code> i <code>x-osd-notice</code>) oraz nagłówku <code>X-OSD-Data-Mode</code>; eksport CSV zawiera dodatkowe kolumny opisujące symulację. <code>/health/live</code> sprawdza proces, a <code>/health/ready</code> gotowość magazynu i polityki. <code>/api/operations</code> wymaga osobnego tokenu.</p>
 <h2>Rozwój i testy</h2>
 <pre><code class="language-bash">python -m pip install -r requirements-dev.txt
 python -m pip check

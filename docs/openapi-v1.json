@@ -1,9 +1,9 @@
 {
   "openapi": "3.1.1",
   "info": {
-    "title": "Monitor OSD Polska API",
+    "title": "Monitor OSD Community API",
     "version": "1.7.0",
-    "description": "Publiczne API tylko do odczytu. Odczyt nie uruchamia skanów operatorów. Bieżące zdarzenia obejmują tylko włączone źródła i istniejące, niezmienione obiekty. Lokalizacje, mapa i display zawierają matching_pending_sources (lista kodów operatorów); źródła zawierają matching_pending_count. Oczekiwanie oznacza data_status=partial; liczniki display są wtedy null. Liczniki list obejmują wyłącznie widoczne zdarzenia. Historia pozostaje zachowana. Obiekty i lokalizacje mają opcjonalne house_number (tekst/null) oraz publiczne address_audit (status, checked_at, reason). Prywatne dowody nie są publikowane. Dokładne potwierdzenie adresowe obsługuje PGE po audycie; pozostałe źródła pozostają unknown. Pole Radius operatora TAURON nie jest kryterium dopasowania. Obiekty i lokalizacje zawierają power_supply (generator, secondary_feed oraz notes w pełnym widoku). To informacja użytkownika, bez wpływu na dopasowania. R8 dodaje match_explanation.version=1 z metodą, zakresem, podstawą, oceną dowodu i ograniczeniami. match_confidence nadal jest metodą, match_evidence.version=2 nadal określa potwierdzenie. Compact pomija details. Ocena nie jest pomiarem napięcia. Starsza historia może nie zawierać wyjaśnienia. Czas operatora bez przesunięcia względem UTC oznacza Europe/Warsaw. Bieżące daty zdarzeń są w UTC; niepoprawna data daje null. Nieistniejąca godzina DST daje niepoprawne okno, niejednoznaczna bez przesunięcia względem UTC zachowuje fold=0; diagnostyka zgłasza ostrzeżenia. Historia jest niezmienna i starsze wpisy mogą zachować poprzednią interpretację czasu. Przedziały czasu zawierają przesunięcie względem UTC dla strefy Europe/Warsaw; stan aktualności, błędy oraz terminy pobierania należą do tego źródła. Plan nie wpływa na dopasowania i historię OSD. Import jest stopniowy; postęp nie oznacza kompletności szczegółów. Monitoring wymagający logowania nie jest zbierany.\nPubliczny katalog nie udostępnia wyposażenia zasilania ani słów dopasowania. Szczegółowa diagnostyka, raporty lokalizacji i include_raw=1 wymagają sesji administratora. Punkty /health/live i /health/ready oceniają lokalną usługę niezależnie od OSD. Prywatny stan operacyjny, migawki i historia powiadomień wymagają uprawnień opisanych przy trasach.\nPubliczny zakres zależy od decyzji publikacji. Niepubliczny obiekt zwraca 404. Dane RadioPolski i pozostałych źródeł mają osobne warunki."
+    "description": "Publiczne API komunikatów o przerwach w dostarczaniu energii. Odczyt nie uruchamia skanów operatorów. Zakres danych zależy od polityki publikacji; niepubliczny obiekt zwraca 404. Wyposażenie, prywatne dowody i słowa dopasowania nie są publikowane. Diagnostyka, raporty lokalizacji i include_raw=1 wymagają sesji administratora. Zapis wymaga również zgodnego Origin i tokenu CSRF. W demo zapis, usługi lokalizacyjne i rzeczywiste źródła są wyłączone. Dane demo mają pola demo i notice oraz nagłówek X-OSD-Data-Mode; ten dokument używa rozszerzeń x-osd-demo i x-osd-notice.\nDopasowanie komunikatu, potwierdzenie objęcia punktu i harmonogram nie są pomiarem zasilania. Bieżące zdarzenia obejmują tylko włączone źródła i niezmienione obiekty. matching_pending_sources wskazuje oczekiwanie na ponowne dopasowanie; wówczas data_status=partial, a liczniki display mogą być null. Historia pozostaje zachowana, ale jej publiczny odczyt również podlega polityce publikacji.\nmatch_explanation opisuje metodę, zakres, podstawę i ograniczenia dopasowania. Widok compact pomija details. match_evidence.version=2 określa dowód objęcia punktu; starsza historia może nie zawierać wyjaśnienia. Czas operatora bez przesunięcia względem UTC oznacza Europe/Warsaw. Daty zdarzeń są w UTC; niepoprawna data daje null. Nieistniejąca godzina przy zmianie czasu daje niepoprawne okno; niejednoznaczna godzina bez przesunięcia względem UTC zachowuje fold=0. Starsze wpisy pozostają niezmienne.\n/health/live i /health/ready oceniają lokalną usługę niezależnie od operatorów. Stan operacyjny, migawki i historia powiadomień wymagają osobnych uprawnień opisanych przy trasach."
   },
   "servers": [
     {
@@ -576,7 +576,7 @@
     },
     "/api/location/check": {
       "post": {
-        "summary": "Limitowane porównanie istniejącego obiektu z PRG, bez edycji katalogu i bez klucza",
+        "summary": "Porównanie istniejącej lokalizacji z PRG we własnej instalacji, bez edycji katalogu",
         "requestBody": {
           "required": true,
           "content": {
@@ -617,8 +617,20 @@
           },
           "503": {
             "description": "Problem dostawcy, kolejki lub wyłączona funkcja"
+          },
+          "401": {
+            "description": "Brak ważnej sesji administratora"
+          },
+          "403": {
+            "description": "Demo albo nieprawidłowe pochodzenie żądania lub token CSRF"
           }
-        }
+        },
+        "security": [
+          {
+            "AdminSession": []
+          }
+        ],
+        "description": "Wymaga sesji administratora, zgodnego Origin i X-CSRF-Token. Demo odrzuca żądanie. PRG oznacza państwowy rejestr granic."
       }
     },
     "/api/v1/diagnostics/scans": {
@@ -1205,7 +1217,7 @@
       },
       "PowerSupply": {
         "type": "object",
-        "description": "Deklarowane wyposażenie obiektu, bez pomiaru sprawności. Wartość unknown oznacza brak uzupełnienia; none zapisany brak. Pole notes jest pomijane w widoku compact. PATCH administracyjny scala podane podpola.",
+        "description": "Prywatne wyposażenie obiektu w katalogu administratora. Nie jest publikowane w publicznym API. Nie oznacza pomiaru sprawności. unknown oznacza brak uzupełnienia, none zadeklarowany brak wyposażenia. Administracyjny PATCH scala podane podpola.",
         "required": [
           "generator",
           "secondary_feed"

@@ -1,7 +1,7 @@
 ---
 title: "SNUT"
 subtitle: "Monitor OSD"
-documentTitle: "SNUT. Monitor OSD"
+documentTitle: "SNUT. Monitor OSD Community"
 icon: "fas fa-bolt"
 header: true
 footer: false
@@ -55,7 +55,7 @@ services:
   - name: "Pulpit SNUT"
     icon: "fas fa-bolt"
     items:
-      - name: "Monitor OSD"
+      - name: "Monitor OSD Community"
         type: "OsdMonitor"
         endpoint: "/api"
         url: "/"

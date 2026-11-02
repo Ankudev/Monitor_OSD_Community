@@ -16,11 +16,14 @@ const context = vm.createContext({
 });
 vm.runInContext(`let objects=[],events=[],geometries={},statusPayload=null,lastMapPayload=publicMap;
   ${projection}\n${session}
-  function state(){return {objects,events,geometries,adminCsrf,adminCatalog};}
+  function state(){return {objects,events,geometries,adminCsrf,adminCatalog,statusPayload};}
   function signIn(){adminCsrf='test';adminCatalog=privateCatalog;applyMapPayload(publicMap);}`,context);
 const response = (data,ok=true)=>({ok,status:ok?200:401,json:async()=>data});
 (async()=>{
+  context.applyMapPayload({...publicMap,demo:true});
+  assert.equal(context.state().statusPayload.demo,true,'Tryb symulacji musi dotrzeć do zegarów i stanu źródeł');
   context.applyMapPayload(publicMap);
+  assert.equal(context.state().statusPayload.demo,false,'Zwykły odczyt nie może zachować poprzedniego trybu demo');
   assert.equal(context.state().objects.length,1);
   context.signIn();
   assert.equal(context.state().objects.length,2);

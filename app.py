@@ -2470,11 +2470,11 @@ async def update_object_handler(request):
 
 
 async def index_handler(request):
-    return web.FileResponse(WEB_DIR / "index.html")
+    return await community.html_response(WEB_DIR / "index.html", request.app[CONFIG_KEY]['profile'])
 
 
 async def readme_handler(request):
-    return web.FileResponse(WEB_DIR / "readme.html")
+    return await community.html_response(WEB_DIR / "readme.html", request.app[CONFIG_KEY]['profile'])
 
 
 
@@ -2537,7 +2537,8 @@ async def snut_handler(request):
             )
         raise web.HTTPNotFound()
 
-    response = web.FileResponse(candidate)
+    response = (await community.html_response(candidate, request.app[CONFIG_KEY]['profile'])
+                if candidate.suffix == '.html' else web.FileResponse(candidate))
     if relative_path == "index.html" or relative_path in {
         "assets/config.yml",
         "release.json",
@@ -3070,7 +3071,9 @@ def main():
     parser.add_argument('--data-dir', type=Path, default=BASE_DIR/'.runtime/demo')
     parser.add_argument('--host', default='127.0.0.1')
     parser.add_argument('--port', type=int, default=8080)
-    parser.add_argument('--snut-dir', type=Path, default=BASE_DIR/'.deployment/snut-build')
+    parser.add_argument('--snut-dir', type=Path,
+                        default=BASE_DIR/'snut' if (BASE_DIR/'snut/index.html').is_file()
+                        else BASE_DIR/'.deployment/snut-build')
     args = parser.parse_args()
     data = args.data_dir.resolve()
     if not (data/'config.json').is_file():
