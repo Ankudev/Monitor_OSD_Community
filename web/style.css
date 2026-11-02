@@ -48,7 +48,7 @@ button { cursor: pointer; }
 .refresh-box span, .refresh-box strong, .refresh-box small { display: block; }
 .refresh-box span, .refresh-box small { color: var(--muted); font-size: .74rem; }
 .refresh-box strong { margin: 3px 0; color: var(--navy); font-size: .9rem; }
-.alert-banner { display: flex; gap: 8px; margin-bottom: 20px; padding: 13px 16px; color: #7a271a; background: #fee9e7; border: 1px solid #f8b4ae; border-radius: 9px; }
+.alert-banner { display: flex; flex-wrap: wrap; overflow-wrap: anywhere; gap: 8px; margin-bottom: 20px; padding: 13px 16px; color: #7a271a; background: #fee9e7; border: 1px solid #f8b4ae; border-radius: 9px; }
 .source-health { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 18px; }
 .source-chip { display: grid; gap: 3px; padding: 10px 12px; background: #fff; border: 1px solid var(--line); border-left: 4px solid #c0c5cc; border-radius: 8px; }
 .source-chip.ok { border-left-color: var(--green); }

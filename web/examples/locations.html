@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Publiczny katalog lokalizacji OSD</title>
+  <title>Katalog lokalizacji. Monitor OSD Community</title>
   <link rel="icon" href="data:,">
-  <style>
+  <link rel="stylesheet" href="/static/app-header.css">
+<style>
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #17253a; background: #f5f3ee; }
     body { width: min(1100px, calc(100% - 32px)); margin: 32px auto; }
     h1 { margin-bottom: 6px; }
@@ -67,7 +68,7 @@
           card.append(line(`Komunikaty trwające według harmonogramu: ${item.active_event_count}; przyszłe: ${item.upcoming_event_count}`));
           container.append(card);
         }
-        state.textContent = `Pobrano ${OsdEventView.count(payload.count, ["lokalizację", "lokalizacje", "lokalizacji"])}. Stan danych: ${OsdEventView.dataStatus(payload.data_status)}.`;
+        state.textContent = `${payload.demo ? payload.notice + ' ' : ''}Pobrano ${OsdEventView.count(payload.count, ["lokalizację", "lokalizacje", "lokalizacji"])}. Stan danych: ${OsdEventView.dataStatus(payload.data_status)}.`;
       } catch (error) {
         state.className = 'error';
         state.textContent = `Nie udało się pobrać danych: ${error.message}`;

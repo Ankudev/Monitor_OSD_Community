@@ -27,6 +27,12 @@ if (document.readyState !== 'loading') showDataAttribution();
 window.addEventListener('resize', () => globalThis.OsdHeader.revealActive());
 
 async function showCommunityMode() {
+  if (document.getElementById('community-demo-notice')) {
+    document.body.classList.add('community-demo');
+    const lastRead = document.getElementById('lastReadLabel');
+    if (lastRead) lastRead.textContent = 'Ostatnie odnowienie scenariusza';
+    return;
+  }
   try {
     const response = await fetch('/api/community', {cache: 'no-store'});
     if (!response.ok) return;

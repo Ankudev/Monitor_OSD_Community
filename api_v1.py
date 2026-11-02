@@ -5,6 +5,7 @@ from __future__ import annotations
 from event_history import project_event
 from public_projection import public_data, mark_public_response
 import publication_policy as publication
+import community
 from address_matching import public_address_audit
 from power_supply import normalize_power_supply
 from engine_store import EngineStoreError, history_time
@@ -60,12 +61,12 @@ def _etag_matches(request, etag):
     return False
 
 
-def _response(request, payload, *, status=200):
+def _response(request, payload, *, status=200, document=False):
     policy = publication.current()
-    if policy is not None and policy.enforced and isinstance(payload,dict):
+    if not document and policy is not None and policy.enforced and isinstance(payload,dict):
         metadata = publication.public_metadata(policy) if request.path.endswith(('/map','/export.json')) else {'revision':policy.token}
         payload = dict(payload, publication=metadata)
-    if request.query.get('include_raw') != '1':
+    if not document and request.query.get('include_raw') != '1':
         payload = public_data(payload)
     body = _json_bytes(payload)
     etag = _etag(body)
@@ -975,28 +976,33 @@ async def openapi_handler(request):
         payload = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
         return _error(request, 503, "documentation_unavailable", "Dokumentacja OpenAPI jest niedostępna")
-    return _response(request, payload)
+    return _response(request, payload, document=True)
 
 
 async def docs_handler(request):
     path = Path(request.app[API_CONTEXT_KEY]["root"]) / "web" / "api-docs" / "index.html"
     if not path.is_file():
         raise web.HTTPNotFound()
-    return web.FileResponse(path, headers={"Cache-Control": "no-cache"})
+    return await community.html_response(path, request.app[API_CONTEXT_KEY]['config']()['profile'], headers={"Cache-Control": "no-cache"})
 
 
 async def example_handler(request):
     path = Path(request.app[API_CONTEXT_KEY]["root"]) / "web" / "examples" / "osd-display.html"
     if not path.is_file():
         raise web.HTTPNotFound()
-    return web.FileResponse(path, headers={"Cache-Control": "no-cache"})
+    return await community.html_response(path, request.app[API_CONTEXT_KEY]['config']()['profile'], headers={"Cache-Control": "no-cache"})
 
 
 async def locations_example_handler(request):
     path = Path(request.app[API_CONTEXT_KEY]["root"]) / "web" / "examples" / "locations.html"
     if not path.is_file():
         raise web.HTTPNotFound()
-    return web.FileResponse(path, headers={"Cache-Control": "no-cache"})
+    return await community.html_response(path, request.app[API_CONTEXT_KEY]['config']()['profile'], headers={"Cache-Control": "no-cache"})
+
+
+async def history_example_handler(request):
+    path = Path(request.app[API_CONTEXT_KEY]['root']) / 'web/examples/history.html'
+    return await community.html_response(path, request.app[API_CONTEXT_KEY]['config']()['profile'], headers={'Cache-Control': 'no-cache'})
 
 
 async def options_handler(request):
@@ -1110,6 +1116,7 @@ def register_api_v1(app, context):
     app.router.add_get("/api-docs/", docs_handler)
     app.router.add_get("/examples/osd-display.html", example_handler)
     app.router.add_get("/examples/locations.html", locations_example_handler)
+    app.router.add_get("/examples/history.html", history_example_handler)
     app.router.add_get("/api/v1/{path:.*}", not_found_handler)
     app.router.add_route("OPTIONS", "/api/v1", options_handler)
     app.router.add_route("OPTIONS", "/api/v1/{path:.*}", options_handler)

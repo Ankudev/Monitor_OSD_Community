@@ -56,6 +56,10 @@
   vertical-align: top;
 }
 
+.readme-main td:first-child code {
+  white-space: nowrap;
+}
+
 .readme-card a {
   color: var(--blue);
   font-weight: 700;

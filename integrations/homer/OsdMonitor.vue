@@ -149,8 +149,9 @@
             <span class="osd-dot" :class="sourceState(row)" aria-hidden="true"></span>
             <div>
               <strong>{{ row.label || row.source.toUpperCase() }}</strong>
-              <small>Ostatni poprawny odczyt: {{ formatDate(row.last_success_at) }}</small>
-              <small v-if="publicationText(row)">{{ publicationText(row) }}</small>
+              <small v-if="status?.demo">Dane scenariusza. Bez odczytu operatora.</small>
+              <small v-else>Ostatni poprawny odczyt: {{ formatDate(row.last_success_at) }}</small>
+              <small v-if="!status?.demo && publicationText(row)">{{ publicationText(row) }}</small>
             </div>
             <div class="osd-source-count">
               <strong>{{ valueOrDash(row.matched_event_count) }}</strong>
@@ -389,6 +390,7 @@ export default {
         consecutive_errors: Number(row.consecutive_errors || 0),
       }]));
       this.status = {
+        demo: payload.demo === true,
         ok: payload.data_status === "fresh",
         configured_locations: payload.counts?.locations ?? payload.locations.length,
         last_success_at: payload.data_updated_at,

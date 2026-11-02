@@ -58,7 +58,7 @@
   .osd-tools .search-bar { flex: 1; padding-inline: 0; }
   .osd-tools .search-bar input { width: 100%; }
 }
- .osd-data-attribution { max-width: 1200px; margin: 20px auto; padding: 12px 20px; font-size: 12px; line-height: 1.6; color: #637084; }
+ .osd-data-attribution { max-width: 1200px; margin: 20px auto; padding: 12px 20px; font-size: 12px; line-height: 1.6; color: #586477; }
 /* Stałe oznaczenie symulacji we wszystkich widokach Community. */
 #community-demo-notice { padding: 12px 18px; background: #fff0b3; color: #362600; border-bottom: 2px solid #b86c00; font-size: 14px; line-height: 1.5; }
 .community-demo #adminLoginButton, .community-demo [data-admin-only] { display: none !important; }
