@@ -4,4 +4,4 @@
 2. Kolejny etap: odbiór profilu rzeczywistych źródeł, udokumentowany import słowników miejscowości i ulic oraz ocena warunków wykorzystania danych.
 3. Następnie: łatwiejsza konfiguracja własnej instalacji, diagnostyka aktualizacji i poprawki wynikające ze zgłoszeń społeczności.
 
-Nie planujemy otwartej edycji hostowanego katalogu ani automatycznych wdrożeń kodu z niezweryfikowanych pull requestów. Wspólny silnik rozwijamy w tym repozytorium; prywatne dane i konfiguracje pozostają poza nim.
+Nie planuję otwartej edycji katalogu dostępnego publicznie ani automatycznego wdrażania kodu z niezweryfikowanych propozycji zmian (pull requestów). Wspólny silnik rozwijam w tym repozytorium. Prywatne dane i konfiguracje przechowuję poza nim.

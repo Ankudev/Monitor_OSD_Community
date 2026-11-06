@@ -38,7 +38,7 @@
         const details = document.createElement("details"), summary = document.createElement("summary");
         summary.textContent = `${labels[row.status] || "Nieznany status"}. ${row.source.toUpperCase()}, obiekt ${row.object_id}`;
         details.append(summary);
-        line(details, `Zdarzenie: ${actions[row.action] || "Inna zmiana"}. Utworzono: ${date(row.created_at)}.`);
+        line(details, `Zdarzenie: ${actions[row.action] || "Inna zmiana"}. Data utworzenia: ${date(row.created_at)}.`);
         line(details, `Próby: ${row.attempts} z ${row.max_attempts}. Ostatnia próba: ${date(row.last_attempt_at)}.`);
         line(details, `Przyjęcie przez odbiorcę: ${date(row.delivered_at)}. Zakończenie: ${date(row.finished_at)}.`);
         if (row.status === "pending") line(details, `Następna próba: ${date(row.next_attempt_at)}.`);
