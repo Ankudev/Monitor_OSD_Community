@@ -189,7 +189,11 @@ class PublicationApiTests(AioHTTPTestCase):
 
     async def test_missing_policy_health_and_objects_fail_closed(self):
         self.policy.path.unlink()
-        self.assertEqual((await self.client.get('/health/ready')).status,503)
+        with self.assertLogs('osd-monitor.readiness', level='WARNING') as logs:
+            response = await self.client.get('/health/ready')
+        self.assertEqual(response.status, 503)
+        self.assertEqual(await response.json(), {'status': 'unavailable'})
+        self.assertIn('reason=publication_policy_unavailable', logs.output[0])
         self.assertEqual((await (await self.client.get('/api/objects')).json())['objects'],[])
 
     async def test_new_backup_cannot_silently_omit_missing_policy(self):

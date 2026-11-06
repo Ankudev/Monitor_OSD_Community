@@ -1,4 +1,4 @@
-<!-- Generowane przez tools/render_readme.py; SHA-256: db302e401e1135aaca620927878c4076de879133eae14739f8b8e8c2435b121e -->
+<!-- Generowane przez tools/render_readme.py; SHA-256: 5a39795be9eb56b52472a13d57103893d8929c47e30fa3cdabb03d36df2e7eb0 -->
 <!doctype html>
 <html lang="pl">
 <head>
@@ -38,7 +38,7 @@
 
 <main class="readme-main"><article class="readme-card"><h1>Monitor OSD Community</h1>
 <p>Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD): PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.</p>
-<p><strong>Wersja <code>0.1.2-alpha</code>. Domyślny profil to demo ze zdarzeniami symulowanymi.</strong> Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.</p>
+<p><strong>Wersja <code>0.1.3-alpha</code>. Domyślny profil to demo ze zdarzeniami symulowanymi.</strong> Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.</p>
 <h2>Co można zobaczyć</h2>
 <ol>
 <li>mapę i katalog 16 przykładowych miejscowości z całej Polski;</li>
@@ -103,7 +103,7 @@ python app.py --profile demo --data-dir .runtime/drugie-demo --port 8081
 <p>Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera i zależności przypięte w pliku blokady wersji (lockfile).</p>
 <pre><code class="language-bash">python -m pip install -r requirements-dev.txt
 npm install --global corepack@0.34.6
-python tools/build_snut.py --release-id community-0.1.2-alpha
+python tools/build_snut.py --release-id community-0.1.3-alpha
 </code></pre>
 <p>Po uruchomieniu aplikacji pulpit znajduje się pod <code>/snut/</code>. Gotowe paczki wydań zawierają zbudowany pulpit. Bez zbudowanego pulpitu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.</p>
 <h2>Instalacja z paczki wydania</h2>

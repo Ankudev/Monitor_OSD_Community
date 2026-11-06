@@ -10,13 +10,14 @@ import threading
 from contextlib import closing
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from engine_store import (
     EngineStore,
     EngineStoreCommittedError,
     EngineStoreError,
     backup_database,
+    history_record,
     inspect_database,
     restore_database,
 )
@@ -47,6 +48,26 @@ class EngineStoreTests(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         await self.store.close()
         self.temporary.cleanup()
+
+    async def test_load_current_reads_one_snapshot_during_archive_commit(self):
+        original = state()
+        updated = state(marker="drugi")
+        self.store.load_or_migrate(original)
+        change = history_record(
+            "new", {"source": "pge", "object_id": "demo", "source_event_id": "1"},
+            None, updated["saved_at"],
+        )
+        with closing(sqlite3.connect(self.database.as_uri() + "?mode=ro", uri=True)) as reader:
+            def execute(sql, *args):
+                if sql.startswith("SELECT singleton, revision"):
+                    self.store._write_state(updated, history_records=[change])
+                return reader.execute(sql, *args)
+
+            connection = Mock(wraps=reader)
+            connection.execute.side_effect = execute
+            with patch("engine_store._read_connection", return_value=connection):
+                self.assertEqual(self.store.load_current(), (original, 1))
+        self.assertEqual(self.store.load_current(), (updated, 2))
 
 
 

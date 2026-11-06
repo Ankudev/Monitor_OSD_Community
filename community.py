@@ -48,7 +48,7 @@ def guard(mode):
         elif request.path == '/api/community':
             if request.method not in ('GET', 'HEAD'):
                 raise web.HTTPMethodNotAllowed(request.method, ['GET', 'HEAD'])
-            response = web.json_response({'name': 'Monitor OSD Community', 'version': '0.1.2-alpha',
+            response = web.json_response({'name': 'Monitor OSD Community', 'version': '0.1.3-alpha',
                                       'profile': mode, 'demo': mode == 'demo',
                                       'notice': NOTICE if mode == 'demo' else '',
                                       'repository': 'https://github.com/Ankudev/Monitor_OSD_Community'},

@@ -1,5 +1,9 @@
 # Historia zmian
 
+## 0.1.3-alpha
+
+Odczyt stanu silnika sprawdza dane z jednej migawki SQLite. Zapis nowego wpisu historii w trakcie odczytu nie powoduje już pozornej niespójności archiwum. Dziennik aplikacji odróżnia przekroczenie limitu czasu, błąd odczytu i niedostępność polityki publikacji.
+
 ## 0.1.2-alpha
 
 Dodano zakładkę Historia na mapie i w katalogu. Pokazuje maksymalnie trzy ostatnie różne komunikaty dotyczące wybranego obiektu. [Opis funkcji](docs/historia-obiektu.md).

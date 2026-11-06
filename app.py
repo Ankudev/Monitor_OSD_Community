@@ -2574,8 +2574,8 @@ async def liveness_handler(request):
 
 
 async def readiness_handler(request):
-    ready = await request.app[READINESS_KEY].check()
-    ready = ready and (publication.current() or request.app[publication.KEY].snapshot()).available
+    policy = publication.current() or request.app[publication.KEY].snapshot()
+    ready = await request.app[READINESS_KEY].check(policy_available=policy.available)
     return json_response({'status':'ready' if ready else 'unavailable'}, status=200 if ready else 503)
 
 
@@ -2619,7 +2619,7 @@ async def operations_handler(request):
     return json_response({'jobs':jobs, 'disk':{'free_bytes':disk.free,'total_bytes':disk.total,'inodes':inodes},
                           'api':app[METRICS_KEY].payload(), 'notifications':queue,
                           'backups':backup_health(),
-                          'local_ready':policy.available and await app[READINESS_KEY].check(),
+                          'local_ready':await app[READINESS_KEY].check(policy_available=policy.available),
                           'sources':{source:{'last_success_at':health.get('last_success_at'),
                               'stale':policy.allows(source,'collect') and (bool(health.get('error')) or source_is_due(
                                   {'last_attempt_at':health.get('last_success_at')}, health['interval_seconds']*2, datetime.now().astimezone())),
