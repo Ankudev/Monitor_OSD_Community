@@ -852,7 +852,9 @@ def _history_metadata(result):
 async def history_handler(request):
     context = request.app[API_CONTEXT_KEY]
     try:
-        query = _params(request, {"object_id", "source", "from", "to", "limit", "offset", "snapshot_id"})
+        query = _params(request, {"object_id", "source", "from", "to", "limit", "offset", "snapshot_id", "latest_per_event"})
+        if query.get('latest_per_event', '0') not in {'0', '1'}:
+            raise ValueError('Parametr latest_per_event musi mieć wartość 0 albo 1')
         limit, offset = _limit_offset(query)
         start = _parse_filter_time(query.get("from"), "from")
         stop = _parse_filter_time(query.get("to"), "to")
@@ -861,7 +863,8 @@ async def history_handler(request):
         if start is not None and start >= stop:
             raise ValueError('Parametr from musi określać czas wcześniejszy niż parametr to')
         filters = {'source': query.get('source') or None, 'object_id': query.get('object_id') or None,
-                   'start': history_time(start), 'stop': history_time(stop)}
+                   'start': history_time(start), 'stop': history_time(stop),
+                   'latest_per_event': query.get('latest_per_event', '0') == '1'}
         result = await asyncio.to_thread(context['engine_store'].read_history, limit=limit, offset=offset, publication_filter=_history_filter(context), **filters)
         snapshot = _history_snapshot(result, filters)
         if query.get('snapshot_id') and query['snapshot_id'] != snapshot:
@@ -875,7 +878,7 @@ async def history_handler(request):
         return _response(request, {'api_version': API_VERSION, 'snapshot_id': snapshot,
              **{key: freshness[key] for key in ('data_status','data_updated_at','stale_sources','missing_sources')},
              'count': len(result['items']), 'total': result['total'], 'limit': limit, 'offset': offset,
-             'next': next_url, 'items': result['items'], **_history_metadata(result)})
+             'next': next_url, 'items': result['items'], 'latest_per_event': filters['latest_per_event'], **_history_metadata(result)})
     except ValueError as error:
         return _error(request, 400, "invalid_query", str(error))
     except (EngineStoreError, sqlite3.Error):

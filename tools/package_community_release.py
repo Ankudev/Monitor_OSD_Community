@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--snut-dir', type=Path, default=ROOT/'.deployment/snut-build')
-    parser.add_argument('--output', type=Path, default=ROOT/'.deployment/community-0.1.1-alpha.tgz')
+    parser.add_argument('--output', type=Path, default=ROOT/'.deployment/community-0.1.2-alpha.tgz')
     args = parser.parse_args()
     snut = args.snut_dir.resolve()
     subprocess.run([sys.executable, str(ROOT/'tools/check_public_release.py')], cwd=ROOT, check=True)

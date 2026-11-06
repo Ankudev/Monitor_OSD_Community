@@ -442,6 +442,19 @@
               "type": "string",
               "format": "date-time"
             }
+          },
+          {
+            "name": "latest_per_event",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "0",
+                "1"
+              ],
+              "default": "0"
+            },
+            "description": "Wartość 1 wybiera ostatni dostępny zapis każdego komunikatu przed paginacją. Kolejność: od najnowszego zapisu w archiwum; total zlicza komunikaty. Domyślnie zwracane są wszystkie zmiany."
           }
         ],
         "responses": {
@@ -2254,6 +2267,10 @@
           "publication": {
             "type": "object",
             "description": "Zakres źródeł i rewizja polityki publikacji."
+          },
+          "latest_per_event": {
+            "type": "boolean",
+            "description": "Czy strona zawiera po jednym ostatnim dostępnym wpisie każdego komunikatu."
           }
         }
       },

@@ -376,7 +376,7 @@ class EngineStore:
         return revision
 
     def read_history(self, *, limit=50, offset=0, source=None, object_id=None, start=None, stop=None,
-                     departures_only=False, include_state=False, publication_filter=None):
+                     departures_only=False, include_state=False, publication_filter=None, latest_per_event=False):
         with closing(_read_connection(self.database_path)) as connection:
             connection.execute('BEGIN')
             meta, row = _validate_database(connection)
@@ -394,11 +394,20 @@ class EngineStore:
             if departures_only:
                 conditions.append("action IN ('not_published','out_of_scope')")
             where = ' WHERE ' + ' AND '.join(conditions) if conditions else ''
-            total = connection.execute('SELECT COUNT(*) FROM event_changes' + where, values).fetchone()[0]
+            selection = 'SELECT * FROM event_changes' + where
+            if latest_per_event:
+                # Filter public visibility before grouping. Old rows without an event ID
+                # remain independent rather than being merged into one unknown event.
+                selection = ('WITH visible AS (' + selection + ') SELECT * FROM visible WHERE sequence IN ('
+                             'SELECT MAX(sequence) FROM visible GROUP BY source, object_id, '
+                             "COALESCE(NULLIF(json_extract(after_json, '$.event_key'), ''), "
+                             "NULLIF(json_extract(after_json, '$.source_event_id'), ''), "
+                             "NULLIF(event_id, ''), change_id))")
+            total = connection.execute('SELECT COUNT(*) FROM (' + selection + ')', values).fetchone()[0]
             publication_where = ' WHERE publication_allowed(source,object_id,before_json,after_json,legacy_json)=1' if publication_filter is not None else ''
             archive_total, available_from, unknown = connection.execute(
                 'SELECT COUNT(*),MIN(recorded_at),SUM(recorded_at IS NULL) FROM event_changes'+publication_where).fetchone()
-            cursor = connection.execute('SELECT * FROM event_changes' + where +
+            cursor = connection.execute('SELECT * FROM (' + selection + ')' +
                                         ' ORDER BY sequence DESC LIMIT ? OFFSET ?', [*values, limit, offset])
             columns = [item[0] for item in cursor.description]
             items = [_history_item(dict(zip(columns, entry))) for entry in cursor]

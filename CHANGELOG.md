@@ -1,5 +1,9 @@
 # Historia zmian
 
+## 0.1.2-alpha
+
+Dodano zakładkę Historia na mapie i w katalogu. Pokazuje maksymalnie trzy ostatnie różne komunikaty dotyczące wybranego obiektu. [Opis funkcji](docs/historia-obiektu.md).
+
 ## 0.1.1-alpha
 
 1. Poprawiono typy i stany zdarzeń demo oraz objaśnienia dopasowania. Planowane przykłady są widoczne we właściwych filtrach; stare wpisy historii pozostają niezmienne.
