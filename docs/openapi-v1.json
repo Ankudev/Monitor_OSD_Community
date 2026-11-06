@@ -402,7 +402,7 @@
     },
     "/api/v1/history": {
       "get": {
-        "summary": "Trwała historia zmian SQLite, bez limitu 200 całego archiwum",
+        "summary": "Archiwum zmian w SQLite. Maksymalnie 200 wpisów na stronę.",
         "parameters": [
           {
             "$ref": "#/components/parameters/limit"

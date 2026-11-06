@@ -1,6 +1,6 @@
 # Scenariusz demonstracyjny
 
-Nazwy 16 miast wskazują po jednej miejscowości w każdym województwie. Punkty są autorskimi, orientacyjnymi punktami prezentacji mapy, zaokrąglonymi do dwóch miejsc po przecinku. Nie opisują budynków, punktów poboru energii ani potwierdzonego zasięgu awarii.
+Scenariusz obejmuje 16 miast, po jednym z każdego województwa. Punkty na mapie mają charakter orientacyjny. Ich współrzędne są zaokrąglone do dwóch miejsc po przecinku. Nie wskazują budynków, punktów poboru energii ani potwierdzonego zasięgu awarii.
 
 Kody zaczynające się od `990` są syntetyczne: nie są identyfikatorami urzędowego rejestru TERYT. Wolno używać ich wyłącznie w profilu demo. Dane nie pochodzą z katalogu operatora ani z wcześniej działającej instalacji.
 

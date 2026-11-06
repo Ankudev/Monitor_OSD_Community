@@ -23,7 +23,7 @@
     if (!authenticated || pending === epoch) return;
     pending = epoch; reload.disabled = true;
     const captured = epoch;
-    notice.textContent = "Odczytywanie historii dostaw…";
+    notice.textContent = "Pobieranie historii wysyłki powiadomień…";
     try {
       const response = await fetch(`/api/admin/notifications?limit=20&offset=${offset}`, {cache: "no-store", signal: AbortSignal.timeout(10000)});
       if (captured !== epoch || !authenticated) return;
@@ -32,7 +32,7 @@
       const page = await response.json();
       if (captured !== epoch || !authenticated) return;
       output.replaceChildren();
-      notice.textContent = `Historia dostaw: ${OsdEventView.count(page.total, ["zadanie", "zadania", "zadań"])}. Strona ${Math.floor(offset / 20) + 1}.`;
+      notice.textContent = `Historia wysyłki powiadomień: ${OsdEventView.count(page.total, ["zadanie", "zadania", "zadań"])}. Strona ${Math.floor(offset / 20) + 1}.`;
       if (!page.items.length) line(output, "Brak zapisanych zadań wysyłki.");
       for (const row of page.items) {
         const details = document.createElement("details"), summary = document.createElement("summary");
@@ -50,7 +50,7 @@
       previous.disabled = offset === 0;
       next.disabled = offset + page.items.length >= page.total;
     } catch {
-      if (captured === epoch && authenticated) notice.textContent = "Nie udało się odczytać historii dostaw. Spróbuj ponownie.";
+      if (captured === epoch && authenticated) notice.textContent = "Nie udało się pobrać historii wysyłki powiadomień. Spróbuj ponownie.";
     } finally { if (pending === captured) { pending = null; reload.disabled = false; } }
   }
   window.addEventListener("osd-admin-session", event => session(Boolean(event.detail)));

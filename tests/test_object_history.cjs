@@ -65,7 +65,7 @@ function fixture(id) {
   await tick();
   resolveOld({ok:true, json:async () => ({items:[{description:'stara odpowiedź'}]})});
   await tick();
-  assert.match(view.panels[1].textContent, /Brak zapisanej historii/);
+  assert.match(view.panels[1].textContent, /Brak wpisów w historii tego obiektu/);
   assert(!view.panels[1].textContent.includes('stara odpowiedź'));
 
   globalThis.fetch = async () => ({ok:false});
@@ -75,7 +75,7 @@ function fixture(id) {
   assert.equal(view.panels[1].attributes['aria-busy'], 'false');
   globalThis.fetch = async () => ({ok:true, json:async () => ({items:[]})});
   await view.panels[1].querySelector('button').handlers.click();
-  assert.match(view.panels[1].textContent, /Brak zapisanej historii/);
+  assert.match(view.panels[1].textContent, /Brak wpisów w historii tego obiektu/);
   assert.equal(view.tabs[0].attributes['aria-controls'], view.panels[0].id);
   assert.notEqual(fixture('two').panels[0].id, view.panels[0].id);
   console.log('Historia obiektu: limit, kodowanie ID, tekst bez HTML, demo, klawiatura, wyścig i ponowienie: OK');

@@ -49,7 +49,7 @@
       controller = new AbortController();
       const signal = controller.signal;
       const timeout = setTimeout(() => controller?.signal === signal && controller.abort(), 10000);
-      const status = element('p', 'Wczytywanie historii…', 'object-history-status');
+      const status = element('p', 'Pobieranie historii obiektu…', 'object-history-status');
       status.setAttribute('role', 'status');
       history.replaceChildren(status);
       history.setAttribute('aria-busy', 'true');
@@ -61,14 +61,14 @@
         const data = await response.json();
         if (!Array.isArray(data.items)) throw new Error('invalid_history');
         if (current !== generation) return;
-        status.textContent = data.items.length ? 'Ostatnie zapisane zmiany maksymalnie trzech komunikatów.' : 'Brak zapisanej historii dla tego obiektu.';
+        status.textContent = data.items.length ? 'Najnowsze zapisy dotyczące maksymalnie trzech różnych komunikatów.' : 'Brak wpisów w historii tego obiektu.';
         if (data.demo) history.append(element('p', 'Dane demonstracyjne. Historia zawiera zdarzenia symulowane.', 'object-history-notice'));
         const list = element('ol', '', 'object-history-list');
         for (const item of data.items.slice(0, 3)) {
           const info = globalThis.OsdEventView.summary(item);
           const row = element('li', '', 'object-history-entry');
           row.append(element('strong', `${info.title} · ${info.operator}`));
-          row.append(element('p', `Zapisano: ${globalThis.OsdEventView.formatDate(item.recorded_at)}`));
+          row.append(element('p', `Data zapisu: ${globalThis.OsdEventView.formatDate(item.recorded_at)}`));
           row.append(element('p', actions[item.action] || 'Zapisana zmiana komunikatu'));
           for (const period of info.periods) row.append(element('p', period));
           if (info.description) row.append(element('p', info.description));
@@ -78,7 +78,7 @@
         history.append(list, element('p', 'Historia obejmuje dostępne zapisy aplikacji. Komunikat i jego dopasowanie nie potwierdzają rzeczywistego stanu zasilania.', 'object-history-note'));
       } catch {
         if (current !== generation) return;
-        status.textContent = 'Nie udało się wczytać historii. Spróbuj ponownie.';
+        status.textContent = 'Nie udało się pobrać historii obiektu. Spróbuj ponownie.';
         const retry = element('button', 'Ponów próbę', 'secondary-button');
         retry.type = 'button';
         retry.addEventListener('click', readHistory);

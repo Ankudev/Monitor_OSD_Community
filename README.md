@@ -2,22 +2,24 @@
 
 Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD): PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.
 
-**Wersja `0.1.3-alpha`. Domyślny profil to demo ze zdarzeniami symulowanymi.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.
+**Wersja `0.1.3-alpha` domyślnie działa w profilu demonstracyjnym i pokazuje zdarzenia symulowane.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie podejmuj na tej podstawie decyzji dotyczących bezpieczeństwa pracy przy instalacji elektrycznej.
+
+[Historia zmian](CHANGELOG.md) opisuje kolejne wydania.
 
 ## Co można zobaczyć
 
 1. mapę i katalog 16 przykładowych miejscowości z całej Polski;
 2. zdarzenia aktywne, planowane, zakończone i odwołane;
-3. oddzielne informacje o dopasowaniu, jego ograniczeniach i stanie terminu;
+3. wyjaśnienie dopasowania komunikatu, jego ograniczeń i informacji o terminie;
 4. historię, eksporty i publiczne API tylko do odczytu;
 5. pulpit SNUT oparty na Homerze;
-6. we własnej instalacji: chronioną edycję katalogu i decyzje publikacji poszczególnych pól.
+6. w samodzielnej instalacji także chronioną edycję katalogu i decyzje o publikacji poszczególnych pól.
 
-W demo sześć lokalizacji nie ma zdarzeń. To przykład pustego widoku, a nie informacja o rzeczywistym zasilaniu. Kody miejscowości są syntetyczne, a punkty na mapie orientacyjne. Zasady i pochodzenie danych opisuje [scenariusz demo](examples/demo/README.md).
+W wersji demonstracyjnej sześć lokalizacji nie ma przypisanych zdarzeń. Pusty widok jest częścią scenariusza i nie potwierdza stanu zasilania. Kody miejscowości są syntetyczne, a punkty na mapie orientacyjne. Zasady i pochodzenie danych opisuje [scenariusz demo](examples/demo/README.md).
 
 ## Szybki start
 
-Wymagany Python w wersji od 3.11 do 3.13. Środowisko referencyjne: Python 3.12. Zależności instalujemy w osobnym środowisku. Nie są potrzebne klucze API ani dane produkcyjne.
+Projekt wymaga Pythona w wersji od 3.11 do 3.13. Środowiskiem referencyjnym jest Python 3.12. Zainstaluj zależności w osobnym środowisku wirtualnym. Wersję demonstracyjną uruchomisz na dołączonych danych przykładowych, bez kluczy API i danych produkcyjnych.
 
 Windows PowerShell:
 
@@ -41,9 +43,9 @@ python3 -m venv .venv
 .venv/bin/python app.py
 ```
 
-Otwórz `http://127.0.0.1:8080/`. Mapa, katalog i API działają bez budowania SNUT. Część serwerowa demo nie pobiera źródeł operatorów, nie geokoduje i nie wysyła powiadomień. Przeglądarka może pobierać kafelki mapy; bez ich dostępności nadal można korzystać z listy. Dostawcy map otrzymują standardowe żądania przeglądarki.
+Otwórz `http://127.0.0.1:8080/`. Mapa, katalog i API działają bez budowania SNUT. Serwer demonstracyjny nie pobiera danych operatorów, nie geokoduje adresów i nie wysyła powiadomień. Przeglądarka może pobierać kafelki od dostawców map. Gdy kafelki są niedostępne, nadal możesz korzystać z listy.
 
-Inicjalizację wykonaj raz. Kolejne uruchomienia używają tego samego katalogu; inicjalizator odmawia jego nadpisania. Nowy scenariusz przygotujesz, wskazując inny katalog:
+Uruchom inicjalizator raz dla danego katalogu. Aplikacja używa tego katalogu przy kolejnych uruchomieniach. Inicjalizator odmawia jego nadpisania. Aby przygotować nowy scenariusz, wskaż inny katalog:
 
 ```bash
 python tools/init_demo.py --data-dir .runtime/drugie-demo
@@ -57,10 +59,10 @@ Terminy scenariusza odnawiają się przy uruchomieniu i podczas pracy demo. Hist
 | Profil | Zastosowanie |
 | --- | --- |
 | `demo` | Symulacja, publiczny odczyt, brak operacji administratora i wysyłki |
-| `local` | Własny katalog i administracja; harmonogram odczytu źródeł wyłączony |
+| `local` | Własny katalog i administracja, z wyłączonym harmonogramem odczytu źródeł |
 | `live` | Jawnie uruchomione adaptery OSD z własną konfiguracją oraz decyzjami dotyczącymi źródeł |
 
-Profile `local` i `live` wymagają przygotowania konfiguracji według [instrukcji własnej instalacji](docs/wlasna-instalacja.md). Sama zmiana `profile` w pliku demo nie jest migracją danych: aplikacja odrzuca przykładowe identyfikatory w profilu `live`.
+Profile `local` i `live` wymagają przygotowania konfiguracji według [instrukcji własnej instalacji](docs/wlasna-instalacja.md). Zmiana wartości `profile` w pliku demonstracyjnym nie przenosi danych. Profil `live` odrzuca przykładowe identyfikatory.
 
 Nowy obiekt jest prywatny. Publiczna mapa, API, historia i eksporty wymagają zatwierdzenia pól powiązanego z ich wartościami. Edycja pola unieważnia wcześniejsze zatwierdzenie. Status weryfikacji lokalizacji i zgoda na publikację są odrębnymi informacjami.
 
@@ -68,7 +70,7 @@ Ocena warunków wykorzystania rzeczywistych źródeł jest otwarta. Publiczna do
 
 ## Pulpit SNUT
 
-Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera i zależności przypięte w pliku blokady wersji (lockfile).
+Do zbudowania pulpitu potrzebujesz Git, Node.js 22 i Corepack. Narzędzie pobiera określoną wersję Homera oraz wersje zależności zapisane w pliku blokady (lockfile).
 
 ```bash
 python -m pip install -r requirements-dev.txt
@@ -76,7 +78,7 @@ npm install --global corepack@0.34.6
 python tools/build_snut.py --release-id community-0.1.3-alpha
 ```
 
-Po uruchomieniu aplikacji pulpit znajduje się pod `/snut/`. Gotowe paczki wydań zawierają zbudowany pulpit. Bez zbudowanego pulpitu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.
+Po uruchomieniu aplikacji pulpit jest dostępny pod `/snut/`. Paczki wydań zawierają gotowy pulpit. Jeśli w instalacji ze źródeł pulpit nie został zbudowany, strona SNUT wyświetla komunikat o niedostępności. Mapa i API mogą nadal działać.
 
 ## Instalacja z paczki wydania
 
@@ -84,7 +86,7 @@ Pobierz archiwum `.tgz` z zakładki Releases repozytorium i porównaj jego SHA-2
 
 ## API i kontrola stanu
 
-Dokumentacja: `/api-docs/`, specyfikacja: `/api/v1/openapi.json`. Przykładowe odczyty: `/api/v1/map`, `/api/v1/locations`, `/api/v1/history`. Paginacja używa odnośników zwracanych przez API; po zmianie migawki może być konieczne ponowienie odczytu.
+Dokumentacja jest dostępna pod `/api-docs/`, a specyfikacja pod `/api/v1/openapi.json`. Dane możesz odczytać między innymi z `/api/v1/map`, `/api/v1/locations` i `/api/v1/history`. Kolejne strony pobieraj według odnośników zwracanych przez API. Po zmianie migawki może być konieczne rozpoczęcie od pierwszej strony.
 
 `/api/community` wskazuje wersję i profil. Dane demo mają oznaczenie w JSON (w OpenAPI jako rozszerzenia `x-osd-demo` i `x-osd-notice`) oraz nagłówku `X-OSD-Data-Mode`; eksport CSV zawiera dodatkowe kolumny opisujące symulację. `/health/live` sprawdza proces, a `/health/ready` gotowość magazynu i polityki. `/api/operations` wymaga osobnego tokenu.
 
