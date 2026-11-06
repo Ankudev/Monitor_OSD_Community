@@ -37,7 +37,7 @@
     const session=await (await fetch("/api/admin/session",{cache:"no-store"})).json(); csrf=session.csrf_token;
     if (!csrf) throw new Error("Zaloguj się w katalogu obiektów.");
     const response=await fetch("/api/admin/publication",{cache:"no-store"});
-    if (!response.ok) throw new Error("Nie udało się wczytać decyzji.");
+    if (!response.ok) throw new Error("Nie udało się pobrać decyzji o publikacji.");
     state=await response.json();
     const select=document.getElementById("publicationObject"); const previous=select.value; select.replaceChildren();
     for (const obj of state.objects) {const option=element("option",obj.name || obj.id); option.value=obj.id; select.append(option);}
@@ -63,7 +63,7 @@
       }
       const decision={...state.decisions[obj.id],visibility:document.getElementById("publicationVisibility").value,fields,reason:document.getElementById("publicationReason").value};
       const response=await fetch(`/api/admin/publication/object/${encodeURIComponent(obj.id)}`,{method:"PUT",headers:{"Content-Type":"application/json","X-CSRF-Token":csrf},body:JSON.stringify({revision:state.revision,decision})});
-      if (!response.ok) throw new Error("Nie zapisano decyzji. Sprawdź dowody, sesję i aktualną rewizję.");
+      if (!response.ok) throw new Error("Nie udało się zapisać decyzji. Sprawdź dane źródłowe i sesję. Odśwież decyzje przed ponowieniem próby.");
       await load(); message("Decyzja została zapisana.");
     } catch(error) {message(error.message);}
   });

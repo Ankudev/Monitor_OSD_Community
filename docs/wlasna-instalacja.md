@@ -10,9 +10,9 @@ python app.py --profile local --data-dir .runtime/local
 
 Inicjalizator tworzy pusty katalog lokalizacji i pusty schemat słowników. Nie pobiera urzędowego rejestru. Przed dodaniem rzeczywistych lokalizacji należy przygotować `data/teryt.db` z tabelami `simc(sym,nazwa,woj,pow,gmi)` i `ulic(sym_ul,sym,cecha,nazwa_1,nazwa_2)` oraz udokumentować źródło danych. Nie zastępuj kodów urzędowych kodami demonstracyjnymi.
 
-Konfiguracja administratora używa `PGE_ADMIN_PASSWORD_FILE` wskazującego plik skrótu hasła i `PGE_PUBLIC_ORIGIN` określającego dokładny adres HTTPS. Hasło utwórz interaktywnym narzędziem, zgodnie z jego pomocą. Plik ze skrótem zachowaj poza repozytorium z ograniczonymi uprawnieniami. Dla lokalnego HTTP na pętli zwrotnej można ustawić `PGE_ADMIN_LOCAL_HTTP=1`; nie stosuj tego ustawienia na publicznym serwerze.
+Ustaw `PGE_ADMIN_PASSWORD_FILE` na ścieżkę do pliku ze skrótem hasła, a `PGE_PUBLIC_ORIGIN` na dokładny adres HTTPS. Aby utworzyć plik ze skrótem, uruchom interaktywne narzędzie i postępuj zgodnie z jego instrukcją. Zapisz plik poza repozytorium i ogranicz dostęp do niego. Na potrzeby lokalnego HTTP na adresie pętli zwrotnej możesz ustawić `PGE_ADMIN_LOCAL_HTTP=1`. Na publicznym serwerze użyj HTTPS.
 
-Po zalogowaniu panel polityki jest pod `/api/admin/publication/setup`. Nowe lokalizacje są prywatne. Wymagane są osobne decyzje dla źródeł i konkretnych wartości pól; brak decyzji zamyka publikację. Własna decyzja nie zastępuje praw do danych.
+Po zalogowaniu otwórz panel polityki publikacji pod `/api/admin/publication/setup`. Nowe lokalizacje są prywatne. Zatwierdź osobno źródła i konkretne wartości pól. Dane bez wymaganych decyzji pozostają prywatne. Decyzja w panelu nie nadaje praw do danych.
 
 Profil `local` nie uruchamia harmonogramu skanowania. Profil `live` wymaga zmiany profilu konfiguracji, rzeczywistych lokalizacji i słowników, jawnej listy `enabled_sources` oraz decyzji zezwalających na pobieranie i przechowywanie danych. Sprawdź warunki źródeł przed ich aktywacją. Domyślnie wysyłka pozostaje wyłączona. Ta część wersji alpha wymaga własnego odbioru na docelowych danych.
 

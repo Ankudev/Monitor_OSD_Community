@@ -27,7 +27,7 @@
   ],
   "src/components/ConnectivityChecker.vue": [
     ["Network unreachable", "Brak połączenia z aplikacją"],
-    ["aria-label=\"Retry connection check\"", "aria-label=\"Sprawdź połączenie ponownie\""],
+    ["aria-label=\"Retry connection check\"", "aria-label=\"Sprawdź ponownie połączenie\""],
     ["More information →", "Więcej informacji →"]
   ],
   "src/components/GetStarted.vue": [

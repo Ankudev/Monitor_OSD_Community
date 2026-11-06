@@ -14,6 +14,12 @@ Tekst powinien być poprawny gramatycznie, stylistycznie, interpunkcyjnie i orto
 4. Reguła nie zmienia składni kodu, poleceń, nazw własnych, danych źródłowych ani istniejących archiwów. Samodzielny znak braku danych w liczniku pozostaje oznaczeniem braku wartości, a nie zerem.
 5. Skracanie tekstu nie może zmieniać jego znaczenia. Nie zastępuj planowanej przerwy określeniem sugerującym pomiar prądu, a dopasowania komunikatu potwierdzeniem braku zasilania.
 
+## Opisy wykonanych prac
+
+Gdy opisujesz własną ukończoną zmianę w historii wydań, komunikacie commita lub propozycji zmian, użyj pierwszej osoby liczby pojedynczej w czasie przeszłym. W opisach właściciela projektu stosuj formę męską, np. „Dodałem zakładkę Historia”. Opieraj opis na faktycznie wykonanej pracy. Zachowaj autorstwo cudzych zmian.
+
+Instrukcje i przyciski zachowują tryb właściwy dla polecenia. Komunikaty aplikacji opisują jej stan lub wynik operacji. W odnośniku do starszego commita można zredagować opis widoczny w dokumentacji. Adres, SHA i źródłowy komunikat należą do zapisu Git.
+
 ## Spójna terminologia
 
 | Pojęcie | Zalecana forma |

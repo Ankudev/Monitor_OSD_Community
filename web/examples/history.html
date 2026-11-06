@@ -25,7 +25,7 @@ address.value = new URL('/api/v1/history?limit=50', location.protocol === 'file:
 const status = document.getElementById('status');
 const nextButton = document.getElementById('next');
 const actions = {new:'Nowe dopasowanie', updated:'Zmienione dane', cancelled:'Odwołany komunikat',
-  not_published:'Operator przestał publikować komunikat', out_of_scope:'Komunikat przestał pasować', snapshot:'Zastana obserwacja'};
+  not_published:'Operator przestał publikować komunikat', out_of_scope:'Komunikat nie pasuje już do obiektu', snapshot:'Zapis migawki'};
 function dateText(value) {
   if (!value) return 'Brak danych';
   const date = new Date(value);

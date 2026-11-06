@@ -40,7 +40,7 @@
       if (sdk.Notifications.permission) await sdk.User.PushSubscription.optIn();
       show();
     } catch {
-      notice.textContent = "Nie udało się włączyć powiadomień. Sprawdź sesję administratora i uprawnienia przeglądarki. Użyj aktualnego Chrome, Edge lub Firefox poza trybem prywatnym.";
+      notice.textContent = "Nie udało się włączyć powiadomień. Sprawdź, czy sesja administratora jest aktywna i czy przeglądarka zezwala na powiadomienia. Użyj aktualnej wersji przeglądarki Chrome, Edge lub Firefox poza trybem prywatnym.";
     } finally { start.disabled = false; }
   });
   function show() {
