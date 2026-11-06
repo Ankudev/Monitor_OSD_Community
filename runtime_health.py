@@ -1,5 +1,6 @@
 """Stan pętli zadań, niezależny od aktualności danych operatora."""
 import asyncio
+import logging
 import time
 import math
 import hmac
@@ -8,6 +9,9 @@ from pathlib import Path
 import json
 from collections import deque
 from datetime import datetime, timezone
+
+
+readiness_logger = logging.getLogger('osd-monitor.readiness')
 
 
 class JobHealth:
@@ -40,21 +44,43 @@ class Readiness:
     def __init__(self, reader):
         self.reader = reader
         self.task = None
+        self._last_failure = None
 
-    async def check(self):
-        if self.task is None:
-            self.task = asyncio.create_task(asyncio.to_thread(self.reader))
+    async def _read(self):
+        try:
+            await asyncio.to_thread(self.reader)
+        except Exception:
+            return 'engine_read_error'
+        return None
+
+    def _record_result(self, reason, started):
+        if reason != self._last_failure:
+            elapsed_ms = (time.monotonic() - started) * 1000
+            if reason is None:
+                readiness_logger.info('Przywrócono gotowość (elapsed_ms=%.1f)', elapsed_ms)
+            else:
+                readiness_logger.warning(
+                    'Sonda gotowości zgłasza niedostępność (reason=%s, elapsed_ms=%.1f)',
+                    reason, elapsed_ms,
+                )
+            self._last_failure = reason
+        return reason is None
+
+    async def check(self, *, policy_available=True):
+        started = time.monotonic()
+        if not policy_available:
+            return self._record_result('publication_policy_unavailable', started)
+        if self.task is None or self.task.done():
+            self.task = asyncio.create_task(self._read())
         task = self.task
         try:
-            await asyncio.wait_for(asyncio.shield(task), timeout=1)
-            return True
+            reason = await asyncio.wait_for(asyncio.shield(task), timeout=1)
         except TimeoutError:
-            return False
-        except Exception:
-            return False
+            reason = 'engine_read_timeout'
         finally:
             if task.done() and self.task is task:
                 self.task = None
+        return self._record_result(reason, started)
 
 
 class RequestMetrics:

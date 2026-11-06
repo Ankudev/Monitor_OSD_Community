@@ -261,6 +261,8 @@ class EngineStore:
 
     def load_current(self):
         with closing(_read_connection(self.database_path)) as connection:
+            # Stan i metadane archiwum muszą pochodzić z tej samej migawki.
+            connection.execute("BEGIN")
             _meta, row = _validate_database(connection)
         return _decode_state(row[3]), int(row[0])
 

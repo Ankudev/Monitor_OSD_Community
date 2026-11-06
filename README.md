@@ -2,7 +2,7 @@
 
 Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD): PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.
 
-**Wersja `0.1.2-alpha`. Domyślny profil to demo ze zdarzeniami symulowanymi.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.
+**Wersja `0.1.3-alpha`. Domyślny profil to demo ze zdarzeniami symulowanymi.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie służy do podejmowania decyzji o bezpieczeństwie pracy przy instalacji elektrycznej.
 
 ## Co można zobaczyć
 
@@ -73,7 +73,7 @@ Wymaga Git, Node.js 22 i Corepack. Budowanie pobiera przypiętą wersję Homera 
 ```bash
 python -m pip install -r requirements-dev.txt
 npm install --global corepack@0.34.6
-python tools/build_snut.py --release-id community-0.1.2-alpha
+python tools/build_snut.py --release-id community-0.1.3-alpha
 ```
 
 Po uruchomieniu aplikacji pulpit znajduje się pod `/snut/`. Gotowe paczki wydań zawierają zbudowany pulpit. Bez zbudowanego pulpitu strona SNUT zwraca informację o jego niedostępności; nie oznacza to awarii mapy lub API.

@@ -169,13 +169,24 @@ class HealthTests(unittest.IsolatedAsyncioTestCase):
         def reader(): finish.wait(5)
         readiness=Readiness(reader)
         try:
-            self.assertFalse(await readiness.check())
-            original=readiness.task
-            self.assertFalse(await readiness.check())
-            self.assertIs(readiness.task,original)
+            with self.assertLogs('osd-monitor.readiness', level='WARNING') as logs:
+                self.assertFalse(await readiness.check())
+                original=readiness.task
+                waiter=asyncio.create_task(readiness.check())
+                await asyncio.sleep(0)
+                waiter.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await waiter
+                self.assertFalse(await readiness.check())
+                self.assertIs(readiness.task,original)
+            self.assertEqual(len(logs.output), 1)
+            self.assertIn('reason=engine_read_timeout', logs.output[0])
         finally:
             finish.set()
             if readiness.task is not None: await readiness.task
+        with self.assertLogs('osd-monitor.readiness', level='INFO') as logs:
+            self.assertTrue(await readiness.check())
+        self.assertIn('Przywrócono gotowość', logs.output[0])
 
     async def test_wait_and_stall_are_distinct_and_task_death_is_visible(self):
         now=[0]
@@ -191,9 +202,18 @@ class HealthTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(job.payload()['state'],'stopped')
         self.assertEqual(job.payload(enabled=False)['state'],'disabled')
 
-    async def test_readiness_failure_does_not_expose_error(self):
-        def fail(): raise OSError('private configuration')
-        self.assertFalse(await Readiness(fail).check())
+    async def test_readiness_distinguishes_policy_and_reader_errors_without_details(self):
+        def fail():
+            raise TimeoutError('private configuration')
+
+        readiness=Readiness(fail)
+        with self.assertLogs('osd-monitor.readiness', level='WARNING') as logs:
+            self.assertFalse(await readiness.check())
+            self.assertFalse(await readiness.check(policy_available=False))
+        self.assertEqual(len(logs.output), 2)
+        self.assertIn('reason=engine_read_error', logs.output[0])
+        self.assertIn('reason=publication_policy_unavailable', logs.output[1])
+        self.assertNotIn('private configuration', '\n'.join(logs.output))
 
 
 class OperationsApiTests(unittest.IsolatedAsyncioTestCase):
