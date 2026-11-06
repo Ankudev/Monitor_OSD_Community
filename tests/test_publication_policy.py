@@ -154,6 +154,12 @@ class PublicationApiTests(AioHTTPTestCase):
         second=await (await self.client.get(first['next'])).json()
         self.assertEqual(second['total'],2);self.assertNotIn('PRIVATE',json.dumps(second))
         self.assertNotIn('PRIVATE',(await (await self.client.get('/api/v1/export.csv?dataset=history')).text()))
+        preview=await (await self.client.get('/api/v1/history?latest_per_event=1&limit=3')).json()
+        self.assertEqual(preview['total'],2)
+        self.assertNotIn('PRIVATE',json.dumps(preview))
+        hidden=await (await self.client.get('/api/v1/history?object_id=PRIVATE-ID&latest_per_event=1&limit=3')).json()
+        self.assertEqual(hidden['items'],[])
+        self.assertEqual(hidden['total'],0)
 
     async def test_admin_publication_csrf_conflicts_edit_binding_and_revoke(self):
         decision=dict(visibility='private',fields={})

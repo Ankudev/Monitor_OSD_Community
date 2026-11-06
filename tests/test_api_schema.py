@@ -32,7 +32,8 @@ class ApiSchemaTests(unittest.IsolatedAsyncioTestCase):
         for route, name in [('/api/v1/events?view=compact', 'EventPage'),
                             ('/api/v1/events?view=full', 'EventPage'),
                             ('/api/v1/events?fields=start_at', 'EventPage'),
-                            ('/api/v1/history?limit=2', 'HistoryPage')]:
+                            ('/api/v1/history?limit=2', 'HistoryPage'),
+                            ('/api/v1/history?limit=3&latest_per_event=1', 'HistoryPage')]:
             with self.subTest(route=route):
                 response = await self.case.client.get(route)
                 self.assertEqual(response.status, 200)

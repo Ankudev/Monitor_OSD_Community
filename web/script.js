@@ -334,6 +334,12 @@ function localizeMapControls(target) {
     if (element) { element.title = label; element.setAttribute("aria-label", label); }
   }
   target.on("popupopen", event => {
+    const inspector = event.popup.getElement()?.querySelector('.object-inspector');
+    if (inspector) {
+      // Leaflet aktualizuje rozmiar, zachowując węzły i obsługę zakładek.
+      event.popup.setContent(inspector);
+      globalThis.OsdObjectHistory.mount(inspector, inspector.dataset.objectId, () => event.popup.update());
+    }
     const close = event.popup.getElement()?.querySelector(".leaflet-popup-close-button");
     if (close) { close.title = "Zamknij opis"; close.setAttribute("aria-label", "Zamknij opis"); }
   });
@@ -460,6 +466,7 @@ function mapEventMessage(event, object) {
 
 function renderMap(list) {
   if (!map) return;
+  const openObject = [...(objectMarkers || [])].find(([, marker]) => marker.isPopupOpen?.())?.[0];
   objectLayer.clearLayers();
   outageLayer.clearLayers();
   objectMarkers = new Map();
@@ -482,7 +489,7 @@ function renderMap(list) {
       || related.find((event) => !event.verification_pending)
       || related[0];
     const popup = [
-      `<strong>${escapeHtml(object.name)}</strong>`,
+      `<h4>${escapeHtml(object.name)}</h4>`,
       escapeHtml(object.city),
       object.house_number ? `Adres: ${escapeHtml(object.street || "")} ${escapeHtml(object.house_number)}` : "",
       `TERYT (SIMC): ${escapeHtml(object.city_sym)}`,
@@ -500,10 +507,11 @@ function renderMap(list) {
       fillColor: highlighted ? eventColor(highlighted) : "#1769aa",
       fillOpacity: 1,
     })
-      .bindPopup(popup, {maxWidth: 300, maxHeight: 340})
+      .bindPopup(`<div class="object-inspector" data-object-id="${escapeHtml(object.id)}">${popup}</div>`, {maxWidth: 340, maxHeight: 400})
       .addTo(objectLayer);
     objectMarkers.set(String(object.id), marker);
   }
+  if (openObject) objectMarkers.get(openObject)?.openPopup();
 
   // Punkty operatora opisują cały komunikat, a nie GPS dopasowanego obiektu.
   if (!showOperatorPoints) {
@@ -885,6 +893,7 @@ function renderObjects() {
     deleteButton.dataset.objectName = object.name;
     actions.append(deleteButton);
     row.append(actions);
+    globalThis.OsdObjectHistory.mount(text, object.id);
     list.append(row);
   }
 }
