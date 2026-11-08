@@ -64,6 +64,8 @@ Terminy scenariusza odnawiają się przy uruchomieniu i podczas pracy demo. Hist
 
 Profile `local` i `live` wymagają przygotowania konfiguracji według [instrukcji własnej instalacji](docs/wlasna-instalacja.md). Zmiana wartości `profile` w pliku demonstracyjnym nie przenosi danych. Profil `live` odrzuca przykładowe identyfikatory.
 
+We własnej instalacji na Linuksie z systemd profil `live` może odczytywać PGE z tokenem użytkownika. Bez tokenu obowiązuje dotychczasowy odczyt. [Instrukcja podłączenia własnego tokenu](docs/wlasna-instalacja.md#własny-token-pge-w-profilu-live)
+
 Nowy obiekt jest prywatny. Publiczna mapa, API, historia i eksporty wymagają zatwierdzenia pól powiązanego z ich wartościami. Edycja pola unieważnia wcześniejsze zatwierdzenie. Status weryfikacji lokalizacji i zgoda na publikację są odrębnymi informacjami.
 
 Ocena warunków wykorzystania rzeczywistych źródeł jest otwarta. Publiczna dostępność komunikatu nie zastępuje ustalenia zasad jego przechowywania i rozpowszechniania. Licencja projektu obejmuje jego kod i autorskie przykłady, nie dane operatorów.

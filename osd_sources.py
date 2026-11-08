@@ -22,8 +22,10 @@ from zoneinfo import ZoneInfo
 import aiohttp
 
 from geometry import normalize_geometry
+import pge_credentials
+from pge_request_budget import RequestBudget
 from event_history import parse_event_datetime, event_time_warning
-from scan_diagnostics import response_metadata, publication_metadata, warn
+from scan_diagnostics import error_details, response_metadata, publication_metadata, warn
 from scan_diagnostics import SourceMaintenanceError
 from scan_diagnostics import measured, parser, request_attempt, request_metrics, response_redirects, uncertain_request_count, source_trace, completed, SourceContractError, SourceRequestBudgetError
 
@@ -218,7 +220,7 @@ def canonical_event(
     }
 
 
-async def _request_text(session, method, url, *, retries=3, **kwargs):
+async def _request_text(session, method, url, *, retries=3, sensitive_response=False, **kwargs):
     last_error = None
     safe_url = _safe_url_label(url)
     for attempt in range(1, retries + 1):
@@ -239,7 +241,12 @@ async def _request_text(session, method, url, *, retries=3, **kwargs):
                     finally:
                         # text() używa ciała już odczytanego przez read(). Starsze
                         # atrapy z samym text() nie dostarczają dowodu bajtowego.
-                        response_metadata(response.status, getattr(response, 'headers', {}).get('Content-Type'), body)
+                        content_type = getattr(response, 'headers', {}).get('Content-Type')
+                        if sensitive_response:
+                            # Odpowiedź może odbić sekret również w nagłówku.
+                            content_type = 'application/json' if str(content_type).split(';')[0].lower() == 'application/json' else None
+                        response_metadata(response.status, content_type, body,
+                                          omit_hash=sensitive_response)
                     if response.status != 200:
                         message = f"{method} {safe_url} zwrócił HTTP {response.status}"
                         retry_after = parse_retry_after(
@@ -259,7 +266,7 @@ async def _request_text(session, method, url, *, retries=3, **kwargs):
                     return text
         except SourceHttpError as error:
             last_error = error
-            if 400 <= error.status < 500 or error.status == 503:
+            if 400 <= error.status < 500 or error.status == 503 or (sensitive_response and attempt == retries):
                 raise
             if attempt < retries:
                 await asyncio.sleep(attempt * 1.5)
@@ -343,13 +350,20 @@ def normalize_pge(raw):
     )
 
 
-async def _fetch_pge_response(session, _config):
+async def _fetch_pge_response(session, _config, *, token=None):
     now = datetime.now(POLAND_TIMEZONE)
     params = {
         "startAtTo": (now + timedelta(days=PLANNED_LOOKAHEAD_DAYS)).strftime("%Y-%m-%d %H:%M:%S"),
         "stopAtFrom": (now - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S"),
     }
-    all_data = await _request_json(session, "GET", PGE_URL, params=params, retries=1, allow_redirects=False)
+    if token is None:
+        all_data = await _request_json(session, "GET", PGE_URL, params=params, retries=1, allow_redirects=False)
+    else:
+        all_data = await _request_json(session, "GET", PGE_URL, params=params, retries=1, allow_redirects=False,
+                                       sensitive_response=True,
+                                       headers={'X-Auth-Token': token, 'Content-Type': 'application/json'})
+        if _contains_secret(all_data, token):
+            raise pge_credentials.PgeAccessError('PGE: odpowiedź zawiera poświadczenie; odrzucono ją bez publikacji.')
     if not isinstance(all_data, list):
         raise SourceContractError("PGE: zamiast pełnej listy otrzymano inny format")
     by_id = {}
@@ -367,7 +381,44 @@ async def _fetch_pge_response(session, _config):
     return list(by_id.values())
 
 
+def _contains_secret(value, token):
+    if isinstance(value, str):
+        return token in value
+    if isinstance(value, dict):
+        return any(_contains_secret(key, token) or _contains_secret(item, token) for key, item in value.items())
+    if isinstance(value, list):
+        return any(_contains_secret(item, token) for item in value)
+    return False
+
+
 async def fetch_pge(session, config):
+    if config.get('profile') == 'demo':
+        raise SourceContractError('Profil demonstracyjny nie pobiera danych PGE.')
+    if pge_credentials.enabled(config.get('profile')):
+        token = pge_credentials.read_token()
+        # Adres nie pochodzi z konfiguracji ani żądania użytkownika.
+        if PGE_URL != 'https://power-outage.gkpge.pl/api/power-outage':
+            raise pge_credentials.PgeAccessError('PGE: odmowa wysłania poświadczenia pod inny adres.')
+        try:
+            with RequestBudget().attempt():
+                # Nie kopiujemy nagłówków, proxy ani cookies ze wspólnej sesji.
+                timeout = aiohttp.ClientTimeout(total=60)
+                try:
+                    async with aiohttp.ClientSession(timeout=timeout, trust_env=False,
+                            cookie_jar=aiohttp.DummyCookieJar(),
+                            trace_configs=[source_trace(single_request=True)]) as controlled:
+                        return await _fetch_pge_response(controlled, config, token=token)
+                except (SourceHttpError, pge_credentials.PgeAccessError):
+                    raise
+                except Exception as error:
+                    # Klasyfikacja musi powstać przed obsługą błędów magazynu budżetu.
+                    details = error_details(error)
+                    raise pge_credentials.PgeAccessError(
+                        f"PGE: {details['message']} Zachowano poprzedni wynik.", details['error_code']
+                    ) from None
+        except SourceHttpError as error:
+            raise SourceHttpError(f'PGE: serwer zwrócił HTTP {error.status}. Zachowano poprzednie dane.',
+                                  status=error.status, retry_after=error.retry_after) from None
     if not isinstance(session, aiohttp.ClientSession):
         return await _fetch_pge_response(session, config)
     async with aiohttp.ClientSession(timeout=session.timeout, headers=dict(session.headers),

@@ -21,9 +21,13 @@ PUBLICATION_FIELDS = ('publication_updated_at', 'publication_timestamp_field',
                       'publication_observed_at', 'publication_time_status')
 PARSER_VERSION = 'contracts:20261011:1'
 LABELS = {
+    'pge_access': 'Nie można bezpiecznie użyć poświadczenia PGE.',
+    'pge_paused': 'Odczyty PGE wstrzymano do sprawdzenia dostępu przez administratora.',
+    'pge_budget': 'Odczyt PGE wstrzymano z powodu limitu lub niedostępności jego magazynu.',
     'dns': 'Nie udało się ustalić adresu serwera.',
     'tls': 'Nie udało się zestawić bezpiecznego połączenia.',
     'connect_error': 'Nie udało się połączyć z serwerem.',
+    'transport_error': 'Przerwano przesyłanie odpowiedzi.',
     'timeout': 'Przekroczono czas oczekiwania.',
     'http': 'Serwer zwrócił błąd HTTP.',
     'invalid_json': 'Odpowiedź nie jest poprawnym dokumentem JSON.',
@@ -76,6 +80,7 @@ def error_details(error):
         elif isinstance(item, (ssl.SSLError, aiohttp.ClientSSLError)): code = 'tls'
         elif isinstance(item, (TimeoutError, asyncio.TimeoutError)): code = 'timeout'
         elif isinstance(item, aiohttp.ClientConnectorError): code = 'connect_error'
+        elif isinstance(item, (aiohttp.ClientConnectionError, aiohttp.ClientPayloadError)): code = 'transport_error'
         elif isinstance(item, json.JSONDecodeError): code = 'invalid_json'
         elif type(item).__name__ == 'SourceHttpError': code = 'http'
         elif type(item).__name__ == 'CatalogChangedError': code = 'catalog_changed'
@@ -184,7 +189,7 @@ def warn(code):
         run['warnings'].append(code)
 
 
-def response_metadata(status, content_type, body):
+def response_metadata(status, content_type, body, *, omit_hash=False):
     """Wyłącznie metadane odczytanego ciała po dekompresji HTTP; bez nagłówków."""
     run = CURRENT.get()
     if run is None:
@@ -197,8 +202,8 @@ def response_metadata(status, content_type, body):
     media = media if re.fullmatch(r'[a-z0-9.+-]+/[a-z0-9.+-]+', media) else None
     rows.append({'observed_at': utc(), 'http_status': int(status), 'content_type': media,
                  'body_complete': body is not None, 'body_bytes': len(body) if body is not None else None,
-                 'body_sha256': hashlib.sha256(body).hexdigest() if body is not None else None,
-                 'hash_scope': 'decoded_body_bytes' if body is not None else None})
+                 'body_sha256': hashlib.sha256(body).hexdigest() if body is not None and not omit_hash else None,
+                 'hash_scope': 'decoded_body_bytes' if body is not None and not omit_hash else None})
 
 
 def publication_metadata(document):
@@ -328,7 +333,7 @@ class Capture:
         self.data.update(status='failed', **error_details(error))
         if self.data['error_code'] == 'internal' and self.data['stage'] == 'parse' and isinstance(error, (ValueError, TypeError, KeyError)):
             self.data.update(error_code='contract', message=LABELS['contract'])
-        stage = {'dns':'fetch', 'tls':'fetch', 'connect_error':'fetch', 'timeout':'fetch',
+        stage = {'dns':'fetch', 'tls':'fetch', 'connect_error':'fetch', 'transport_error':'fetch', 'timeout':'fetch',
                  'http':'fetch', 'invalid_json':'parse', 'contract':'parse', 'incomplete':'parse',
                  'conflicting_id':'parse', 'catalog_changed':'match', 'storage':'persist'}
         stage['client_retry_blocked'] = 'fetch'
