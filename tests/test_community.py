@@ -105,6 +105,13 @@ class CommunityTests(AioHTTPTestCase):
             self.assertEqual(response.status, 200, path)
             self.assertIn('id="community-demo-notice"', await response.text(), path)
 
+    async def test_readme_keeps_external_links_and_resolves_repository_links(self):
+        response = await self.client.get('/readme')
+        self.assertEqual(response.status, 200)
+        content = await response.text()
+        self.assertIn('href="https://github.com/Ankudev/Monitor_OSD_Community/issues"', content)
+        self.assertIn('href="https://github.com/Ankudev/Monitor_OSD_Community/blob/main/CONTRIBUTING.md"', content)
+
     async def test_demo_metadata_errors_and_preflight_keep_mode_headers(self):
         for method, path, status in [
             ('GET', '/api/community', 200), ('HEAD', '/api/community', 200),
