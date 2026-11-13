@@ -1,25 +1,25 @@
 # Monitor OSD Community
 
-Rozwijany społecznościowo monitor komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD): PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.
+Rozwijam Monitor OSD Community jako otwarty projekt do śledzenia komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD). Są to PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.
 
 **Wersja `0.1.3-alpha` domyślnie działa w profilu demonstracyjnym i pokazuje zdarzenia symulowane.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie podejmuj na tej podstawie decyzji dotyczących bezpieczeństwa pracy przy instalacji elektrycznej.
 
-[Historia zmian](CHANGELOG.md) opisuje kolejne wydania.
+Kolejne wydania opisuję w [historii zmian](CHANGELOG.md).
 
 ## Co można zobaczyć
 
-1. mapę i katalog 16 przykładowych miejscowości z całej Polski;
-2. zdarzenia aktywne, planowane, zakończone i odwołane;
-3. wyjaśnienie dopasowania komunikatu, jego ograniczeń i informacji o terminie;
-4. historię, eksporty i publiczne API tylko do odczytu;
-5. pulpit SNUT oparty na Homerze;
-6. w samodzielnej instalacji także chronioną edycję katalogu i decyzje o publikacji poszczególnych pól.
+1. Mapa i katalog 16 przykładowych miejscowości z całej Polski
+2. Zdarzenia aktywne, planowane, zakończone i odwołane
+3. Informacje o terminie oraz wyjaśnienie, jak dopasowano komunikat i jakie są ograniczenia tego dopasowania
+4. Historia, eksporty i publiczne API tylko do odczytu
+5. Pulpit SNUT oparty na Homerze
+6. W samodzielnej instalacji także chroniona edycja katalogu i decyzje o publikacji poszczególnych pól
 
-W wersji demonstracyjnej sześć lokalizacji nie ma przypisanych zdarzeń. Pusty widok jest częścią scenariusza i nie potwierdza stanu zasilania. Kody miejscowości są syntetyczne, a punkty na mapie orientacyjne. Zasady i pochodzenie danych opisuje [scenariusz demo](examples/demo/README.md).
+W scenariuszu demonstracyjnym pozostawiłem sześć lokalizacji bez przypisanych zdarzeń. Pusty widok jest częścią symulacji i nie potwierdza stanu zasilania. Użyłem syntetycznych kodów miejscowości i orientacyjnych punktów na mapie. Zasady i pochodzenie danych opisałem w [scenariuszu demo](examples/demo/README.md).
 
 ## Szybki start
 
-Projekt wymaga Pythona w wersji od 3.11 do 3.13. Środowiskiem referencyjnym jest Python 3.12. Zainstaluj zależności w osobnym środowisku wirtualnym. Wersję demonstracyjną uruchomisz na dołączonych danych przykładowych, bez kluczy API i danych produkcyjnych.
+Projekt wymaga Pythona w wersji od 3.11 do 3.13. Jako środowisko referencyjne przyjąłem Pythona 3.12. Zainstaluj zależności w osobnym środowisku wirtualnym. Wersję demonstracyjną uruchomisz na dołączonych danych przykładowych, bez kluczy API i danych produkcyjnych.
 
 Windows PowerShell:
 
@@ -43,7 +43,7 @@ python3 -m venv .venv
 .venv/bin/python app.py
 ```
 
-Otwórz `http://127.0.0.1:8080/`. Mapa, katalog i API działają bez budowania SNUT. Serwer demonstracyjny nie pobiera danych operatorów, nie geokoduje adresów i nie wysyła powiadomień. Przeglądarka może pobierać kafelki od dostawców map. Gdy kafelki są niedostępne, nadal możesz korzystać z listy.
+Otwórz `http://127.0.0.1:8080/`. Mapa, katalog i API działają bez budowania SNUT. Serwer demonstracyjny nie pobiera danych operatorów, nie geokoduje adresów i nie wysyła powiadomień. Przy wyświetlaniu mapy przeglądarka może pobierać kafelki bezpośrednio z serwerów OpenStreetMap i Geoportalu. Gdy kafelki są niedostępne, nadal możesz korzystać z listy.
 
 Uruchom inicjalizator raz dla danego katalogu. Aplikacja używa tego katalogu przy kolejnych uruchomieniach. Inicjalizator odmawia jego nadpisania. Aby przygotować nowy scenariusz, wskaż inny katalog:
 
@@ -64,15 +64,15 @@ Terminy scenariusza odnawiają się przy uruchomieniu i podczas pracy demo. Hist
 
 Profile `local` i `live` wymagają przygotowania konfiguracji według [instrukcji własnej instalacji](docs/wlasna-instalacja.md). Zmiana wartości `profile` w pliku demonstracyjnym nie przenosi danych. Profil `live` odrzuca przykładowe identyfikatory.
 
-We własnej instalacji na Linuksie z systemd profil `live` może odczytywać PGE z tokenem użytkownika. Bez tokenu obowiązuje dotychczasowy odczyt. [Instrukcja podłączenia własnego tokenu](docs/wlasna-instalacja.md#własny-token-pge-w-profilu-live)
+We własnej instalacji na Linuksie z systemd możesz użyć własnego tokenu do odczytu komunikatów PGE w profilu `live`. Bez tokenu profil korzysta z dotychczasowego odczytu. Zobacz [instrukcję podłączenia własnego tokenu](docs/wlasna-instalacja.md#własny-token-pge-w-profilu-live).
 
-Nowy obiekt jest prywatny. Publiczna mapa, API, historia i eksporty wymagają zatwierdzenia pól powiązanego z ich wartościami. Edycja pola unieważnia wcześniejsze zatwierdzenie. Status weryfikacji lokalizacji i zgoda na publikację są odrębnymi informacjami.
+Nowy obiekt jest prywatny. Aby udostępnić pole na publicznej mapie, w API, historii i eksportach, zatwierdź jego aktualną wartość. Edycja pola unieważnia wcześniejsze zatwierdzenie. Status weryfikacji lokalizacji i zgoda na publikację są odrębnymi informacjami.
 
-Ocena warunków wykorzystania rzeczywistych źródeł jest otwarta. Publiczna dostępność komunikatu nie zastępuje ustalenia zasad jego przechowywania i rozpowszechniania. Licencja projektu obejmuje jego kod i autorskie przykłady, nie dane operatorów.
+Ocena warunków wykorzystania rzeczywistych źródeł pozostaje otwarta. Przed zapisaniem lub rozpowszechnieniem komunikatu ustal warunki korzystania z jego źródła, również gdy komunikat jest publicznie dostępny.
 
 ## Pulpit SNUT
 
-Do zbudowania pulpitu potrzebujesz Git, Node.js 22 i Corepack. Narzędzie pobiera określoną wersję Homera oraz wersje zależności zapisane w pliku blokady (lockfile).
+Do zbudowania pulpitu potrzebujesz Gita, Node.js 22 i Corepacka. Narzędzie pobiera określoną wersję Homera oraz wersje zależności zapisane w pliku blokady (lockfile).
 
 ```bash
 python -m pip install -r requirements-dev.txt
@@ -84,13 +84,13 @@ Po uruchomieniu aplikacji pulpit jest dostępny pod `/snut/`. Paczki wydań zawi
 
 ## Instalacja z paczki wydania
 
-Pobierz archiwum `.tgz` z zakładki Releases repozytorium i porównaj jego SHA-256 z sumą podaną przy załączniku. Rozpakuj je do pustego katalogu. W tym katalogu utwórz środowisko Python, zainstaluj `requirements.txt`, uruchom `tools/init_demo.py`, a następnie `app.py`, używając poleceń z szybkiego startu. Pomiń klonowanie repozytorium. Paczka zawiera gotowy katalog `snut/`, który aplikacja wybiera automatycznie.
+Pobierz archiwum `.tgz` z zakładki Releases repozytorium. Porównaj sumę kontrolną SHA-256 archiwum z wartością podaną przy załączniku. Rozpakuj archiwum do pustego katalogu. W tym katalogu utwórz środowisko wirtualne Pythona, zainstaluj zależności z `requirements.txt`, uruchom `tools/init_demo.py`, a następnie `app.py`, używając poleceń z szybkiego startu. Pomiń klonowanie repozytorium. Paczka zawiera gotowy katalog `snut/`, który aplikacja wybiera automatycznie.
 
 ## API i kontrola stanu
 
 Dokumentacja jest dostępna pod `/api-docs/`, a specyfikacja pod `/api/v1/openapi.json`. Dane możesz odczytać między innymi z `/api/v1/map`, `/api/v1/locations` i `/api/v1/history`. Kolejne strony pobieraj według odnośników zwracanych przez API. Po zmianie migawki może być konieczne rozpoczęcie od pierwszej strony.
 
-`/api/community` wskazuje wersję i profil. Dane demo mają oznaczenie w JSON (w OpenAPI jako rozszerzenia `x-osd-demo` i `x-osd-notice`) oraz nagłówku `X-OSD-Data-Mode`; eksport CSV zawiera dodatkowe kolumny opisujące symulację. `/health/live` sprawdza proces, a `/health/ready` gotowość magazynu i polityki. `/api/operations` wymaga osobnego tokenu.
+Punkt końcowy `/api/community` podaje wersję i profil. Dane demonstracyjne mają oznaczenie w odpowiedziach JSON oraz w nagłówku `X-OSD-Data-Mode`. W specyfikacji OpenAPI służą do tego rozszerzenia `x-osd-demo` i `x-osd-notice`. Eksport CSV zawiera dodatkowe kolumny opisujące symulację. Sonda `/health/live` sprawdza działanie procesu, a `/health/ready` sprawdza gotowość magazynu i polityki publikacji. Dostęp do `/api/operations` wymaga osobnego tokenu.
 
 ## Rozwój i testy
 
@@ -103,10 +103,10 @@ python tools/render_readme.py --check
 python tools/check_public_release.py
 ```
 
-Testy JavaScript: uruchom `node` dla każdego `tests/test_*.cjs`, a następnie `node --test integrations/homer/tests/*.test.mjs`. Testy korzystają z własnych katalogów tymczasowych i syntetycznych odpowiedzi. Podczas testów nie uruchamiaj prawdziwych skanów ani powiadomień.
+Aby wykonać testy JavaScript, uruchom `node` dla każdego pliku `tests/test_*.cjs`. Następnie wykonaj `node --test integrations/homer/tests/*.test.mjs`. Testy korzystają z własnych katalogów tymczasowych i syntetycznych odpowiedzi. Podczas testów nie uruchamiaj prawdziwych skanów ani powiadomień.
 
-Zapraszamy do [zgłoszeń](https://github.com/Ankudev/Monitor_OSD_Community/issues) i pull requestów. Zobacz [zasady współpracy](CONTRIBUTING.md), [plan rozwoju](ROADMAP.md) i [zgłaszanie podatności](SECURITY.md). Opisy funkcji, interfejs i dokumentację piszemy po polsku.
+Zapraszam do [zgłaszania błędów i pomysłów](https://github.com/Ankudev/Monitor_OSD_Community/issues) oraz do przesyłania propozycji zmian (pull requestów). Zobacz [zasady współpracy](CONTRIBUTING.md), [plan rozwoju](ROADMAP.md) i [zasady zgłaszania podatności](SECURITY.md). Opisy funkcji, interfejs i dokumentację tworzę po polsku.
 
 ## Licencja
 
-Własny kod i przykłady: [MIT](LICENSE). Komponenty zewnętrzne zachowują własne licencje: [informacje o zależnościach](THIRD_PARTY_NOTICES.md).
+Własny kod i autorskie przykłady udostępniam na licencji [MIT](LICENSE). Dane operatorów podlegają warunkom ich źródeł. Licencje komponentów zewnętrznych podaję w [informacjach o zależnościach](THIRD_PARTY_NOTICES.md).
