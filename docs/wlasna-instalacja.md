@@ -16,6 +16,26 @@ Po zalogowaniu otwórz panel polityki publikacji pod `/api/admin/publication/set
 
 Profil `local` nie uruchamia harmonogramu skanowania. Profil `live` wymaga zmiany profilu konfiguracji, rzeczywistych lokalizacji i słowników, jawnej listy `enabled_sources` oraz decyzji zezwalających na pobieranie i przechowywanie danych. Sprawdź warunki źródeł przed ich aktywacją. Domyślnie wysyłka pozostaje wyłączona. Ta część wersji alpha wymaga własnego odbioru na docelowych danych.
 
+## Własny token PGE w profilu `live`
+
+We własnej instalacji z Linuksem i systemd możesz podłączyć swój token do odczytu komunikatów PGE. Bez poświadczenia profil `live` korzysta z dotychczasowego odczytu. W obu trybach obowiązują decyzje dotyczące źródła w polityce publikacji. Profile `demo` i `local` nie używają poświadczenia PGE.
+
+1. Przygotuj osobną usługę systemd uruchamiającą `app.py --profile live` z własnym katalogiem danych i osobnym kontem usługi. Wzór usługi demonstracyjnej pozostaw w instalacji demo.
+2. Utwórz katalog sekretów i uruchom narzędzie z interaktywnego terminala:
+
+   ```bash
+   sudo install -d -o root -g root -m 0700 /etc/monitor-osd-community-live/secrets
+   sudo .venv/bin/python -B tools/set_pge_api_token.py
+   ```
+
+   Narzędzie dwukrotnie poprosi o token bez wyświetlania znaków. Zapisze go w pliku dostępnym dla administratora. Token podawaj w tym polu, poza poleceniami i konfiguracją aplikacji.
+
+3. Dodaj konfigurację z [wzoru poświadczenia](../deploy/community/pge-official-api.conf.example) do jednostki własnej instalacji, np. przez `sudo systemctl edit monitor-osd-community-live.service`. Po zapisaniu konfiguracji uruchom ponownie tę usługę. Systemd przekaże poświadczenie procesowi oraz przygotuje prywatny katalog budżetu.
+
+Po restarcie następny odczyt PGE korzysta z tokenu. Odpowiedzi 401 i 403 wstrzymują odczyt do sprawdzenia poświadczenia. Aplikacja zachowuje ostatni poprawny wynik. Po poprawieniu tokenu i restarcie uruchom `tools/resume_pge_api.py` jako konto własnej usługi, żeby wznowić próby bez zerowania budżetu. Wymiana tokenu wymaga ponownego uruchomienia usługi.
+
+Aby wrócić do dotychczasowego odczytu, usuń wpis `LoadCredential` dodany do własnej jednostki i uruchom ją ponownie. Zmiana dotyczy przyszłych odczytów. Jeśli to samo poświadczenie jest używane przez więcej niż jeden proces, wszystkie muszą korzystać z tego samego magazynu budżetu.
+
 ## Serwer
 
 Wzór jednostki: `deploy/community/monitor-osd-community.service`. Używa osobnego użytkownika, portu 8082, katalogu danych i środowiska Python. Przed startem utwórz konto usługi, środowisko i demo w docelowym katalogu; nadaj mu prawo zapisu wyłącznie do jego danych. Sprawdź dostęp do interpretera jako użytkownik usługi. Katalog kodu powinien pozostać tylko do odczytu.

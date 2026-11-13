@@ -20,6 +20,7 @@ data/
 *.log
 *.pem
 *.key
+*.token
 *.tgz
 *.zip
 PLAN_WDROZENIA.md

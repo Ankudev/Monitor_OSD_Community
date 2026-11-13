@@ -1,0 +1,7 @@
+# Użyj wyłącznie w usłudze własnej instalacji z profilem live.
+[Service]
+LoadCredential=community-pge-power-outage-token:/etc/monitor-osd-community-live/secrets/pge-power-outage.token
+StateDirectory=monitor-osd-community-live/pge-api
+StateDirectoryMode=0700
+UMask=0077
+LimitCORE=0

@@ -16,7 +16,7 @@ def check():
         path = ROOT/name
         if not path.is_file():
             continue
-        if path.suffix in {'.sqlite3', '.db', '.pem', '.key', '.zip'} or name in {'objects.json', 'config.json', 'state.json'}:
+        if path.suffix in {'.sqlite3', '.db', '.pem', '.key', '.token', '.zip'} or name in {'objects.json', 'config.json', 'state.json'}:
             errors.append((name, 'Niedozwolony plik danych'))
         try:
             text = path.read_text(encoding='utf-8-sig')
