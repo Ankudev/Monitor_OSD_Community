@@ -2,9 +2,9 @@
 
 Rozwijam Monitor OSD Community jako otwarty projekt do śledzenia komunikatów o awariach i planowanych przerwach w dostarczaniu energii elektrycznej. Silnik obsługuje formaty pięciu operatorów systemów dystrybucyjnych (OSD). Są to PGE Dystrybucja, TAURON Dystrybucja, ENERGA-OPERATOR, ENEA Operator i Stoen Operator.
 
-**Wersja `0.1.3-alpha` domyślnie działa w profilu demonstracyjnym i pokazuje zdarzenia symulowane.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie podejmuj na tej podstawie decyzji dotyczących bezpieczeństwa pracy przy instalacji elektrycznej.
+**Demo online (dane symulowane, `v0.1.3-alpha`):** [osd-demo.bieda.it](https://osd-demo.bieda.it/) · [Wydanie `v0.1.3-alpha`](https://github.com/Ankudev/Monitor_OSD_Community/releases/tag/v0.1.3-alpha) · [Historia zmian](CHANGELOG.md)
 
-Kolejne wydania opisuję w [historii zmian](CHANGELOG.md).
+**Wersja `0.1.3-alpha` domyślnie działa w profilu demonstracyjnym i pokazuje zdarzenia symulowane.** Projekt nie jest oficjalnym serwisem operatorów. Dopasowanie komunikatu nie jest pomiarem napięcia ani potwierdzeniem braku zasilania. Nie podejmuj na tej podstawie decyzji dotyczących bezpieczeństwa pracy przy instalacji elektrycznej.
 
 ## Co można zobaczyć
 
