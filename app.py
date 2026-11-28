@@ -882,7 +882,7 @@ def canonical_matching_decision(
     details["street_compared"] = bool(street and street in searchable)
     city_position = searchable.find(city) if city else -1
     details["text"]["fragment"] = searchable[max(0,city_position-60):max(0,city_position-60)+240]
-    # „Chełm” nie może pasować do ulicy „Chełmońskiego” w innym mieście.
+    # "Chełm" nie może pasować do ulicy "Chełmońskiego" w innym mieście.
     if city and re.search(r"(?<!\w)" + re.escape(city) + r"(?!\w)", searchable):
         if street and street not in searchable:
             if keyword and keyword in searchable:

@@ -8,15 +8,15 @@ Tekst powinien być poprawny gramatycznie, stylistycznie, interpunkcyjnie i orto
 
 ## Styl techniczny
 
-1. Pisz krótko i rzeczowo. Pomijaj zbędne wstępy, podsumowania i zwroty takie jak „warto zauważyć”, „należy pamiętać” czy „kluczowym elementem jest”.
-2. Nie rozdzielaj części zdania pauzą ani półpauzą. Użyj kropki, przecinka, dwukropka, średnika lub nawiasu. Zakres w zdaniu zapisuj jako „od ... do ...”.
+1. Pisz krótko i rzeczowo. Pomijaj zbędne wstępy, podsumowania i zwroty takie jak "warto zauważyć", "należy pamiętać" czy "kluczowym elementem jest".
+2. Nie rozdzielaj części zdania pauzą ani półpauzą. Użyj kropki, przecinka, dwukropka, średnika lub nawiasu. Zakres w zdaniu zapisuj jako "od ... do ...".
 3. W dokumentacji stosuj listy numerowane lub znak •, bez list rozpoczynanych łącznikiem.
 4. Reguła nie zmienia składni kodu, poleceń, nazw własnych, danych źródłowych ani istniejących archiwów. Samodzielny znak braku danych w liczniku pozostaje oznaczeniem braku wartości, a nie zerem.
 5. Skracanie tekstu nie może zmieniać jego znaczenia. Nie zastępuj planowanej przerwy określeniem sugerującym pomiar prądu, a dopasowania komunikatu potwierdzeniem braku zasilania.
 
 ## Opisy wykonanych prac
 
-Gdy opisujesz własną ukończoną zmianę w historii wydań, komunikacie commita lub propozycji zmian, użyj pierwszej osoby liczby pojedynczej w czasie przeszłym. W opisach właściciela projektu stosuj formę męską, np. „Dodałem zakładkę Historia”. Opieraj opis na faktycznie wykonanej pracy. Zachowaj autorstwo cudzych zmian.
+Gdy opisujesz własną ukończoną zmianę w historii wydań, komunikacie commita lub propozycji zmian, użyj pierwszej osoby liczby pojedynczej w czasie przeszłym. W opisach właściciela projektu stosuj formę męską, np. "Dodałem zakładkę Historia". Opieraj opis na faktycznie wykonanej pracy. Zachowaj autorstwo cudzych zmian.
 
 Instrukcje i przyciski zachowują tryb właściwy dla polecenia. Komunikaty aplikacji opisują jej stan lub wynik operacji. W odnośniku do starszego commita można zredagować opis widoczny w dokumentacji. Adres, SHA i źródłowy komunikat należą do zapisu Git.
 
@@ -38,7 +38,7 @@ Instrukcje i przyciski zachowują tryb właściwy dla polecenia. Komunikaty apli
 | worker powiadomień | mechanizm wysyłki powiadomień |
 | stan źródła | aktualność i wynik odczytu danych operatora |
 
-„Potwierdzone objęcie punktu” oznacza dowód dotyczący komunikatu operatora. Nie oznacza pomiaru napięcia. „Trwające” odnosi się do harmonogramu komunikatu, a nie do potwierdzonego braku zasilania.
+"Potwierdzone objęcie punktu" oznacza dowód dotyczący komunikatu operatora. Nie oznacza pomiaru napięcia. "Trwające" odnosi się do harmonogramu komunikatu, a nie do potwierdzonego braku zasilania.
 
 ## Terminologia elektroenergetyczna
 
@@ -55,8 +55,8 @@ Instrukcje i przyciski zachowują tryb właściwy dla polecenia. Komunikaty apli
 | SZR | Samoczynne załączanie rezerwy. Układ SZR i agregat są elementami wyposażenia, których działanie wymaga osobnego potwierdzenia. |
 | Awaria | Typ komunikatu operatora. Dopasowanie takiego komunikatu nie dowodzi braku zasilania monitorowanego obiektu. |
 | Planowane wyłączenie | Krótka etykieta planowanej przerwy w dostarczaniu energii elektrycznej. Nie zastępuje komunikatu o awarii ani potwierdzenia faktycznego odłączenia. |
-| Moc i energia | Wielkości odrębne. Symbole mocy: W, kW, MW; energii: Wh, kWh, MWh.  |
-| Napięcie i prąd | Wielkości odrębne: napięcie podajemy w V lub kV, natężenie prądu w A. Aplikacja nie mierzy tych wielkości; stosujemy określenie „stan zasilania”, gdy mowa o ogólnej sytuacji obiektu. |
+| Moc i energia | Wielkości odrębne. Symbole mocy: W, kW, MW; energii: Wh, kWh, MWh. |
+| Napięcie i prąd | Wielkości odrębne: napięcie podajemy w V lub kV, natężenie prądu w A. Aplikacja nie mierzy tych wielkości; stosujemy określenie "stan zasilania", gdy mowa o ogólnej sytuacji obiektu. |
 
 Podstawy terminologii: [URE: dostarczanie energii i rola OSD](https://www.ure.gov.pl/pl/konsumenci/rachunki-pod-kontrola-konsumen/dostarczanie-energii-do-gospod/12780%2Cdok.html), [PSE: pytania, odpowiedzi i słownik](https://www.pse.pl/oire/qa-i-slownik), [TAURON Dystrybucja: numer PPE](https://www.tauron-dystrybucja.pl/uslugi-dystrybucyjne/liczniki-i-instalacje/numer-ppe), [Apator: układy SZR](https://www.apator.com/produkty-i-uslugi/energia-elektryczna/rozdzial-energii/samoczynne-zalaczanie-rezerwy-szr). Zweryfikowano 19.10.2026. Definicje odnosimy do modelu aplikacji; nie potwierdzają wyposażenia ani przyłączeń konkretnych obiektów.
 
@@ -64,7 +64,7 @@ Podstawy terminologii: [URE: dostarczanie energii i rola OSD](https://www.ure.go
 
 Daty w interfejsie wyświetlamy po polsku, w strefie `Europe/Warsaw`; wspólny zapis zawiera dzień, miesiąc, rok, godzinę i minuty. Techniczne daty API, logów i danych źródłowych zachowują wymagany format i strefę. Brak daty opisujemy jako brak danych, bez podstawiania bieżącego czasu.
 
-W liczbach prezentowanych przez aplikację stosujemy przecinek dziesiętny i odstęp przed symbolem jednostki, np. „2,5 kW”. Zachowujemy oryginalną precyzję, jednostki i wartości danych operatora. Współrzędne przeznaczone do skopiowania, identyfikatory i przykłady API zachowują zapis techniczny. Nie zmieniamy nazw pobranych ze źródła.
+W liczbach prezentowanych przez aplikację stosujemy przecinek dziesiętny i odstęp przed symbolem jednostki, np. "2,5 kW". Zachowujemy oryginalną precyzję, jednostki i wartości danych operatora. Współrzędne przeznaczone do skopiowania, identyfikatory i przykłady API zachowują zapis techniczny. Nie zmieniamy nazw pobranych ze źródła.
 
 ## Elementy chronione
 
@@ -74,7 +74,7 @@ Nie poprawiaj cudzych danych: komunikatów operatorów, nazw i adresów obiektó
 
 ## Liczniki i dostępność
 
-Stosuj poprawną odmianę: „1 obiekt”, „2 obiekty”, „5 obiektów”, „12 obiektów”, „22 obiekty”. Nie utożsamiaj braku danych z zerem. Podpowiedzi i etykiety dla czytników ekranu również muszą być po polsku.
+Stosuj poprawną odmianę: "1 obiekt", "2 obiekty", "5 obiektów", "12 obiektów", "22 obiekty". Nie utożsamiaj braku danych z zerem. Podpowiedzi i etykiety dla czytników ekranu również muszą być po polsku.
 
 ## Kontrola przed publikacją
 

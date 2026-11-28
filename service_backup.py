@@ -1,4 +1,4 @@
-"""SpĂłjne migawki aplikacji. WywoĹ‚ujÄ…cy musi blokowaÄ‡ zmiany katalogu i stanu."""
+"""Spójne migawki aplikacji. Wywołujący musi blokować zmiany katalogu i stanu."""
 import hashlib
 import json
 import re
@@ -29,7 +29,7 @@ def allowed_file(name, *, version=3):
 
 
 def private_files(root):
-    """Tylko zarzÄ…dzane katalogi. Nie odczytuje Ĺ›cieĹĽek z treĹ›ci dowodĂłw."""
+    """Tylko zarządzane katalogi. Nie odczytuje ścieżek z treści dowodów."""
     files, missing = {}, []
     for folder in PRIVATE_FOLDERS:
         directory = no_symlinks(Path(root)/folder)
@@ -40,7 +40,7 @@ def private_files(root):
             raise ValueError('Magazyn prywatnych raportĂłw nie jest katalogiem.')
         for path in directory.iterdir():
             no_symlinks(path)
-            # NiedokoĹ„czony zapis atomowy nie jest opublikowanym raportem.
+            # Niedokończony zapis atomowy nie jest opublikowanym raportem.
             if path.name.startswith('.review-') and path.suffix == '.tmp' and path.is_file():
                 continue
             name = folder+'/'+path.name
@@ -53,7 +53,7 @@ def private_files(root):
 
 
 def evidence_summary(directory, names):
-    """Kontroluje zarzÄ…dzane dowody; rÄ™czne ĹşrĂłdĹ‚a poza zestawem tylko zlicza."""
+    """Kontroluje zarządzane dowody; ręczne źródła poza zestawem tylko zlicza."""
     directory = Path(directory)
     hashes = set()
     reports = 0
@@ -130,7 +130,7 @@ def copy_database(source, target, *, seconds=60):
         with closing(sqlite3.connect(target)) as copied:
             original.backup(copied, pages=256, progress=progress, sleep=.05)
             copied.commit()
-            # Gotowa kopia jest samodzielnym plikiem, niezaleĹĽnym od WAL ĹşrĂłdĹ‚a.
+            # Gotowa kopia jest samodzielnym plikiem, niezależnym od WAL źródła.
             copied.execute('PRAGMA journal_mode=DELETE')
             check_database(copied, deadline=deadline)
 
@@ -196,7 +196,7 @@ def create_snapshot(files, destination, *, missing_optional=(), revision=None):
             stream.flush()
             os.fsync(stream.fileno())
         path.chmod(0o600)
-        # Utrwalenie wpisĂłw nowych podkatalogĂłw przed publikacjÄ… caĹ‚ego zestawu.
+        # Utrwalenie wpisów nowych podkatalogów przed publikacją całego zestawu.
         for folder in PRIVATE_FOLDERS:
             if (temporary/folder).is_dir():
                 sync_directory(temporary/folder)
@@ -206,7 +206,7 @@ def create_snapshot(files, destination, *, missing_optional=(), revision=None):
         sync_directory(destination.parent)
         return manifest
     except BaseException:
-        # WĹ‚asny, nowo utworzony katalog roboczy, nigdy wczeĹ›niejsza kopia.
+        # Własny, nowo utworzony katalog roboczy, nigdy wcześniejsza kopia.
         if temporary.exists():
             shutil.rmtree(temporary)
         raise
@@ -256,7 +256,7 @@ def verify_snapshot(directory):
 
 
 def restore_snapshot(directory, destination):
-    """Odtwarzanie wyĹ‚Ä…cznie do nowego katalogu, bez uruchamiania usĹ‚ugi."""
+    """Odtwarzanie wyłącznie do nowego katalogu, bez uruchamiania usługi."""
     manifest = verify_snapshot(directory)
     directory = Path(directory).absolute()
     destination = no_symlinks(destination)
@@ -271,7 +271,7 @@ def restore_snapshot(directory, destination):
             target.chmod(0o600)
             if digest(target) != entry['sha256']:
                 raise ValueError('Niezgodna suma odtworzonego pliku.')
-        # OryginaĹ‚ konfiguracji pozostaje zachowany; osobna konfiguracja do prĂłby.
+        # Oryginał konfiguracji pozostaje zachowany; osobna konfiguracja do próby.
         config = json.loads((destination/'config.json').read_text(encoding='utf8'))
         config.update(notifications_enabled=False, our_api_url='',
                       web_host='127.0.0.1', geoportal_enabled=False)

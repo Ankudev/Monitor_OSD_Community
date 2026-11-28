@@ -2,7 +2,7 @@
 
 
 def count(value: int | None, forms):
-    """Zwraca liczbę i jedną z form: pojedyncza, mnoga 2–4, mnoga 5+."""
+    """Zwraca liczbę i jedną z form: pojedyncza, mnoga od 2 do 4, mnoga 5 i więcej."""
     if value is None:
         return f"— {forms[2]}"
     if value == 1:

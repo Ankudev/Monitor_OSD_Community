@@ -1,4 +1,4 @@
-"""Ocena alarmĂłw i rzeczywisty lokalny odczyt prywatnego API bez wysyĹ‚ania wiadomoĹ›ci."""
+"""Ocena alarmów i rzeczywisty lokalny odczyt prywatnego API bez wysyłania wiadomości."""
 import asyncio
 from copy import deepcopy
 import json
